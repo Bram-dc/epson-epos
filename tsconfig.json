@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "commonjs",
+        "lib": [
+            "esnext"
+        ],
+        "allowJs": true,
+        "outDir": "build",
+        "rootDir": "src",
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "types": [
+            "node",
+            "./types"
+        ],
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "noFallthroughCasesInSwitch": true,
+        "moduleResolution": "node"
+    },
+    "include": [
+        "src"
+    ]
+}
