@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
         "target": "esnext",
-        "module": "commonjs",
+        "module": "esnext",
         "lib": [
+            "dom",
             "esnext"
         ],
         "allowJs": true,

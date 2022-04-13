@@ -1,4 +1,4 @@
-function ePOSDevice() {
+export default function ePOSDevice() {
     this.DEVICE_TYPE_SCANNER = "type_scanner"
     this.DEVICE_TYPE_KEYBOARD = "type_keyboard"
     this.DEVICE_TYPE_POSKEYBOARD = "type_poskeyboard"

@@ -1,8 +1,28 @@
+import CanvasPrint from '..'
+
+export default class Printer extends CanvasPrint {
+    deviceID?: string
+    isCrypto?: boolean
+    ePosDev?: any
+    timeout = 10000
+
+    constructor(deviceID?: string, isCrypto?: boolean, ePOSDeviceContext?: any) {
+        super()
+
+        this.deviceID = deviceID
+        this.isCrypto = isCrypto
+        this.ePosDev = ePOSDeviceContext
+
+    }
+
+}
+
+
 function Printer(deviceID, isCrypto, ePOSDeviceContext) {
-    this.deviceID = deviceID
-    this.isCrypto = isCrypto
-    this.ePosDev = ePOSDeviceContext
-    this.timeout = 10000
+    deviceID = deviceID
+    isCrypto = isCrypto
+    ePosDev = ePOSDeviceContext
+    timeout = 10000
 }
 Printer.prototype = new CanvasPrint()
 Printer.prototype.finalize = function () {

@@ -1,4 +1,4 @@
-function ePOSDeviceConfiguration(address) {
+export default function ePOSDeviceConfiguration(address) {
     this.DEVICE_GROUP_ALL = "group_all"
     this.DEVICE_GROUP_PRINTER = "group_printer"
     this.DEVICE_GROUP_DISPLAY = "group_display"

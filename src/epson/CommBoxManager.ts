@@ -1,12 +1,12 @@
 function CommBoxManager() {
-    this.ERROR_OK = "OK"
-    this.ERROR_BOX_COUNT_OVER = "BOX_COUNT_OVER"
-    this.ERROR_BOX_CLIENT_OVER = "BOX_CLIENT_OVER"
-    this.ERROR_MEMBERID_ALREADY_USED = "MEMBERID_ALREADY_USED"
-    this.ERROR_ALREADY_OPENED = "ALREADY_OPENED"
-    this.ERROR_NOT_OPENED = "NOT_OPENED"
-    this.ERROR_PARAMETER_ERROR = "PARAMETER_ERROR"
-    this.ERROR_SYSTEM_ERROR = "SYSTEM_ERROR"
+    this.ERROR_OK = 'OK'
+    this.ERROR_BOX_COUNT_OVER = 'BOX_COUNT_OVER'
+    this.ERROR_BOX_CLIENT_OVER = 'BOX_CLIENT_OVER'
+    this.ERROR_MEMBERID_ALREADY_USED = 'MEMBERID_ALREADY_USED'
+    this.ERROR_ALREADY_OPENED = 'ALREADY_OPENED'
+    this.ERROR_NOT_OPENED = 'NOT_OPENED'
+    this.ERROR_PARAMETER_ERROR = 'PARAMETER_ERROR'
+    this.ERROR_SYSTEM_ERROR = 'SYSTEM_ERROR'
     this.callbackInfo = new callbackInfo()
     this.commBoxList = new Array()
     this.connectionObj = null
@@ -16,7 +16,7 @@ CommBoxManager.prototype = {
         this.connectionObj = connectionObj
     },
     openCommBox: function (boxID, option, callback) {
-        var memberID = ""
+        var memberID = ''
         if (option != null && option.memberID != null) {
             memberID = option.memberID
         }
@@ -88,11 +88,11 @@ CommBoxManager.prototype = {
     executeCommDataCallback: function (data, sq) {
         var boxID = data.box_id
         var commBoxObj = this.getCommBox(boxID)
-        var method = "client_" + data.type
+        var method = 'client_' + data.type
         try {
-            eval("commBoxObj." + method + "(data, sq)")
+            eval('commBoxObj.' + method + '(data, sq)')
         } catch (e) {
-            throw new Error("")
+            throw new Error('')
         }
         return
     },
