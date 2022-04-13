@@ -21,7 +21,7 @@ CAT.prototype = {
             amount: data.amount,
             tax: data.tax,
             sequence: data.sequence,
-            additional_security_information: data.additionalSecurityInformation
+            additional_security_information: data.additionalSecurityInformation,
         }
         _data.type = "authorizesales"
         _data.training = this.trainingMode

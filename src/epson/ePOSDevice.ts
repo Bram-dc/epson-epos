@@ -1,109 +1,113 @@
-export default function ePOSDevice() {
-    this.DEVICE_TYPE_SCANNER = "type_scanner"
-    this.DEVICE_TYPE_KEYBOARD = "type_keyboard"
-    this.DEVICE_TYPE_POSKEYBOARD = "type_poskeyboard"
-    this.DEVICE_TYPE_MSR = "type_msr"
-    this.DEVICE_TYPE_CAT = "type_cat"
-    this.DEVICE_TYPE_CASH_CHANGER = "type_cash_changer"
-    this.DEVICE_TYPE_PRINTER = "type_printer"
-    this.DEVICE_TYPE_DISPLAY = "type_display"
-    this.DEVICE_TYPE_SIMPLE_SERIAL = "type_simple_serial"
-    this.DEVICE_TYPE_HYBRID_PRINTER = "type_hybrid_printer"
-    this.DEVICE_TYPE_HYBRID_PRINTER2 = "type_hybrid_printer2"
-    this.DEVICE_TYPE_DT = "type_dt"
-    this.DEVICE_TYPE_OTHER_PERIPHERAL = "type_other_peripheral"
-    this.DEVICE_TYPE_GFE = "type_storage"
-    this.RESULT_OK = "OK"
-    this.ERROR_SYSTEM = "SYSTEM_ERROR"
-    this.ERROR_DEVICE_IN_USE = "DEVICE_IN_USE"
-    this.ERROR_DEVICE_OPEN = "DEVICE_OPEN_ERROR"
-    this.ERROR_DEVICE_CLOSE = "DEVICE_CLOSE_ERROR"
-    this.ERROR_DEVICE_NOT_OPEN = "DEVICE_NOT_OPEN"
-    this.ERROR_DEVICE_NOT_FOUND = "DEVICE_NOT_FOUND"
-    this.ERROR_PARAMETER = "ERROR_PARAMETER"
-    this.IFPORT_EPOSDEVICE = 8008
-    this.IFPORT_EPOSDEVICE_S = 8043
-    this.CONNECT_TIMEOUT = 15000
-    this.RECONNECT_TIMEOUT = 3000
-    this.MAX_RECONNECT_RETRY = 5
-    this.socket = null
-    this.connectionId = null
-    this.reconnectTimerId = null
-    this.reconnectTryCount = 0
-    this.admin = ""
-    this.location = ""
-    this.recievedDataId = 0
-    this.connectStartTime = 0
-    this.waitRetryConnectId = 0
-    this.conectionObj = new Connection()
-    this.commBoxManager = new CommBoxManager()
-    this.commBoxManager.setConnectionObject(this.conectionObj)
-    this.devObjSelector = new DeviceObjectSelector()
-    this.devObjSelector.setConnectionObject(this.conectionObj)
-    this.devObjElmMap = new DeviceObjElementMap()
-    this.ofsc = new Ofsc()
-    this.ofsc.setConnectionObject(this.conectionObj)
-    this.cookieIo = new CookieIO()
-    this.gbox = new SocketGarbageBox()
-    this.eposprint = false
-    var self = this
-    window.onbeforeunload = function () {
-        self.disconnect()
+import io from 'socket.io-client'
+import { ConnectionIFType, ConnectionProbeResult, ConnectionResult, ConnectionStatus } from '../functions/enums'
+import MessageFactory from '../MessageFactory'
+import CommBoxManager from './CommBoxManager'
+import Connection from './Connection'
+import CookieIO from './CookieIO'
+import DeviceObjectSelector from './DeviceObjectSelector'
+import Ofsc from './Ofsc'
+import SocketGarbageBox from './SocketGarbageBox'
+
+const IFPORT_EPOSDEVICE = 8008
+const IFPORT_EPOSDEVICE_S = 8043
+
+const CONNECT_TIMEOUT = 15000
+const RECONNECT_TIMEOUT = 3000
+
+const MAX_RECONNECT_RETRY = 5
+
+export default class ePOSDevice {
+    socket = null
+    connectionId = null
+    reconnectTimerId = null
+    reconnectTryCount = 0
+    admin = ''
+    location = ''
+    recievedDataId = 0
+    connectStartTime = 0
+    waitRetryConnectId = 0
+    conectionObj = new Connection()
+    commBoxManager = new CommBoxManager()
+    devObjSelector = new DeviceObjectSelector()
+    devObjElmMap = new DeviceObjElementMap()
+    ofsc = new Ofsc()
+    cookieIo = new CookieIO()
+    gbox = new SocketGarbageBox()
+    eposprint = false
+
+    constructor() {
+
+        window.onbeforeunload = () => this.disconnect()
+
+        window.onpagehide = () => this.disconnect()
+
+        this.commBoxManager.setConnectionObject(this.conectionObj)
+
+        this.devObjSelector.setConnectionObject(this.conectionObj)
+
+        this.ofsc.setConnectionObject(this.conectionObj)
+
     }
-    window.onpagehide = function () {
-        self.disconnect()
-    }
-}
-ePOSDevice.prototype = {
-    connect: function (address, port, callback, options) {
-        if ((this.conectionObj.status(this.conectionObj.IF_EPOSDEVICE) != this.conectionObj.DISCONNECT) || (this.conectionObj.status(this.conectionObj.IF_EPOSPRINT) != this.conectionObj.DISCONNECT)) {
+
+    connect(address: string, port: number, callback: (result: ConnectionProbeResult) => void, options: { eposprint: boolean }) {
+
+        if (this.conectionObj.status(ConnectionIFType.IF_EPOSDEVICE) !== ConnectionStatus.DISCONNECT || this.conectionObj.status(ConnectionIFType.IF_EPOSPRINT) !== ConnectionStatus.DISCONNECT)
             this.disconnect()
-        }
-        this.connectStartTime = new Date().getTime()
-        var protocol = (port == this.IFPORT_EPOSDEVICE) ? "http" : "https"
+
+        this.connectStartTime = (new Date).getTime()
+
+        const protocol = port === IFPORT_EPOSDEVICE ? 'http' : 'https'
+
         this.conectionObj.setAddress(protocol, address, port)
         this.conectionObj.registCallback(callback)
-        if (arguments.length >= 4) {
-            this.eposprint = options.eposprint
-        } else {
-            this.eposprint = false
-        }
-        var self = this
-        if (this.eposprint) {
-            var selfofProb = this.conectionObj
-            this.conectionObj.probeWebServiceIF(function (accessTime) {
-                var result = self.ERROR_PARAMETER
-                if (selfofProb.isUsablePrintIF()) {
-                    result = self.RESULT_OK
-                }
-                callback(result)
-            })
-        } else {
-            this.connectBySocketIo(this.CONNECT_TIMEOUT, protocol)
-        }
-    },
-    isConnected: function () {
-        var devIsConnect = false
-        var wsIsConnect = false
-        switch (this.conectionObj.status(this.conectionObj.IF_EPOSDEVICE)) {
-            case this.conectionObj.CONNECT:
-            case this.conectionObj.RECONNECTING:
+
+        this.eposprint = arguments.length >= 4 ? options.eposprint : false
+
+        if (!this.eposprint)
+            return this.connectBySocketIo(CONNECT_TIMEOUT, protocol)
+
+        this.conectionObj.probeWebServiceIF(accessTime => {
+
+            const result = this.conectionObj.isUsablePrintIF() ? ConnectionProbeResult.OK : ConnectionProbeResult.ERROR_PARAMETER
+
+            callback(result)
+
+        })
+
+    }
+
+    isConnected() {
+
+        let devIsConnect = false
+        let wsIsConnect = false
+
+        switch (this.conectionObj.status(ConnectionIFType.IF_EPOSDEVICE)) {
+            case ConnectionStatus.CONNECT:
+            case ConnectionStatus.RECONNECTING:
                 devIsConnect = true
                 break
-            case this.conectionObj.DISCONNECT:
+            case ConnectionStatus.DISCONNECT:
                 break
         }
-        if (this.conectionObj.status(this.conectionObj.IF_EPOSPRINT) == this.conectionObj.CONNECT) {
+
+        if (this.conectionObj.status(ConnectionIFType.IF_EPOSPRINT) === ConnectionStatus.CONNECT)
             wsIsConnect = true
-        }
-        return devIsConnect | wsIsConnect
-    },
-    disconnect: function () {
-        var eposmsg = MessageFactory.getDisconnectMessage(this.connectionId)
+
+        return devIsConnect || wsIsConnect
+
+    }
+
+    disconnect() {
+
+        const eposmsg = MessageFactory.getDisconnectMessage(this.connectionId)
+
         this.conectionObj.emit(eposmsg)
+
         this.cleanup()
-    },
-    createDevice: function (deviceId, deviceType, options, callback) {
+
+    }
+
+    createDevice(deviceId, deviceType, options, callback) {
         try {
             if (!this.isConnected()) {
                 throw new Error(this.ERROR_SYSTEM)
@@ -116,19 +120,19 @@ ePOSDevice.prototype = {
             }
             var isCrypto = false
             var isBufferEnable = false
-            if (typeof (options) == "boolean") {
+            if (typeof (options) == 'boolean') {
                 isCrypto = options
             } else {
-                if (typeof (options.crypto) == "boolean") {
+                if (typeof (options.crypto) == 'boolean') {
                     isCrypto = options.crypto
                 }
-                if (typeof (options.buffer) == "boolean") {
+                if (typeof (options.buffer) == 'boolean') {
                     isBufferEnable = options.buffer
                 }
             }
             if (deviceType == this.DEVICE_TYPE_DT) {
                 isCrypto = true
-                deviceId = "local_dt"
+                deviceId = 'local_dt'
             }
             var deviceObject = this.devObjSelector.select(deviceId, deviceType, options.driver, isCrypto, this)
             deviceObject.setConnectionObject(this.conectionObj)
@@ -149,7 +153,7 @@ ePOSDevice.prototype = {
             }
         } catch (e) {
             var message = e.message
-            if ((message == null) || (message == "")) {
+            if ((message == null) || (message == '')) {
                 message = this.ERROR_DEVICE_OPEN
             }
             if (callback != null) {
@@ -157,7 +161,7 @@ ePOSDevice.prototype = {
             }
         }
     },
-    deleteDevice: function (deviceObject, callback) {
+    deleteDevice(deviceObject, callback) {
         try {
             var element = this.devObjElmMap.getByObj(deviceObject)
             if (element == null) {
@@ -176,7 +180,7 @@ ePOSDevice.prototype = {
             }
         } catch (e) {
             var message = e.message
-            if ((message == null) || (message == "")) {
+            if ((message == null) || (message == '')) {
                 message = this.ERROR_DEVICE_CLOSE
             }
             if (callback != null) {
@@ -184,22 +188,22 @@ ePOSDevice.prototype = {
             }
         }
     },
-    getAdmin: function () {
+    getAdmin() {
         return this.admin
     },
-    getLocation: function () {
+    getLocation() {
         return this.location
     },
-    sendOfscXml: function (xml, timeout, crypto, callback) {
+    sendOfscXml(xml, timeout, crypto, callback) {
         this.ofsc.send(xml, timeout, crypto, callback)
     },
-    getCommBoxManager: function () {
+    getCommBoxManager() {
         if (this.conectionObj.status(this.conectionObj.IF_EPOSDEVICE) != this.conectionObj.CONNECT) {
             return null
         }
         return this.commBoxManager
     },
-    cleanup: function () {
+    cleanup() {
         if (this.waitRetryConnectId != 0) {
             clearTimeout(this.waitRetryConnectId)
             this.waitRetryConnectId = 0
@@ -218,46 +222,46 @@ ePOSDevice.prototype = {
         if ((this.ondisconnect != null) && (this.conectionObj.status(this.conectionObj.IF_EPOSDEVICE) != this.conectionObj.DISCONNECT || this.conectionObj.status(this.conectionObj.IF_EPOSPRINT) != this.conectionObj.DISCONNECT)) {
             this.ondisconnect()
         }
-        this.cookieIo.writeId("", this.conectionObj.address_p)
+        this.cookieIo.writeId('', this.conectionObj.address_p)
         this.conectionObj.changeStatus(this.conectionObj.IF_ALL, this.conectionObj.DISCONNECT)
         this.socket = null
         this.conectionObj.setSocket(null)
         this.connectionId = null
-        this.conectionObj.setAddress("", "", "")
+        this.conectionObj.setAddress('', '', '')
         if (this.reconnectTimerId != null) {
             clearInterval(this.reconnectTimerId)
         }
         this.reconnectTimerId = null
         this.reconnectTryCount = 0
-        this.admin = ""
-        this.location = ""
+        this.admin = ''
+        this.location = ''
         this.recievedDataId = 0
         this.eposprint = false
     },
-    connectBySocketIo: function (timeout) {
+    connectBySocketIo(timeout) {
         var selfofProb = this.conectionObj
         var url = selfofProb.getSocketIoURL()
         this.socket = io.connect(url, {
             reconnect: false,
-            "connect timeout": timeout,
-            "force new connection": true
+            'connect timeout': timeout,
+            'force new connection': true,
         })
         this.conectionObj.setSocket(this.socket)
         var self = this
-        this.socket.on("connect", function (data) {
+        this.socket.on('connect', function (data) {
             try {
                 self.gbox.dispose()
             } catch (e) { }
         })
-        this.socket.on("close", function () {
+        this.socket.on('close', function () {
             selfofProb.changeStatus(selfofProb.IF_EPOSDEVICE, tselfofProb.DISCONNECT)
         })
-        this.socket.on("disconnect", function (data) {
+        this.socket.on('disconnect', function (data) {
             try {
                 if (selfofProb.status(selfofProb.IF_EPOSDEVICE) == selfofProb.RECONNECTING) {
                     return
                 } else {
-                    if (self.cookieIo.readId(self.conectionObj.address_p) == "" && self.connectionId == null) {
+                    if (self.cookieIo.readId(self.conectionObj.address_p) == '' && self.connectionId == null) {
                         self.cleanup()
                     } else {
                         self.startReconnectAction()
@@ -265,7 +269,7 @@ ePOSDevice.prototype = {
                 }
             } catch (e) { }
         })
-        this.socket.on("error", function () {
+        this.socket.on('error', function () {
             try {
                 selfofProb.probeWebServiceIF(function (accessTime) {
                     if (selfofProb.isUsablePrintIF()) {
@@ -278,7 +282,7 @@ ePOSDevice.prototype = {
                 })
             } catch (e) { }
         })
-        this.socket.on("connect_failed", function () {
+        this.socket.on('connect_failed', function () {
             try {
                 selfofProb.probeWebServiceIF(function (accessTime) {
                     if (selfofProb.isUsablePrintIF()) {
@@ -291,10 +295,10 @@ ePOSDevice.prototype = {
                 })
             } catch (e) { }
         })
-        this.socket.on("message", function (data) {
+        this.socket.on('message', function (data) {
             try {
                 var eposmsg = MessageFactory.parseRequestMessage(data)
-                if (eposmsg.data_id != "") {
+                if (eposmsg.data_id != '') {
                     self.recievedDataId = eposmsg.data_id
                 }
                 switch (eposmsg.request) {
@@ -343,7 +347,7 @@ ePOSDevice.prototype = {
             } catch (e) { }
         })
     },
-    procConnect: function (eposmsg) {
+    procConnect(eposmsg) {
         try {
             if (this.reconnectTimerId != null) {
                 clearInterval(this.reconnectTimerId)
@@ -359,7 +363,7 @@ ePOSDevice.prototype = {
                     response = MessageFactory.getReconnectMessage(this.connectionId, eposmsg.data.client_id, this.recievedDataId)
                     this.conectionObj.emit(response)
                 } else {
-                    if (prevConnectionId != "") {
+                    if (prevConnectionId != '') {
                         response = MessageFactory.getDisconnectMessage(prevConnectionId)
                         this.conectionObj.emit(response)
                         response = MessageFactory.getPubkeyMessage(eposmsg.data.prime, eposmsg.data.key)
@@ -377,9 +381,9 @@ ePOSDevice.prototype = {
             this.cleanup()
         }
     },
-    procPubkey: function (eposmsg) {
+    procPubkey(eposmsg) {
         try {
-            if (eposmsg.code == "SHARED_KEY_MISMATCH_ERROR") {
+            if (eposmsg.code == 'SHARED_KEY_MISMATCH_ERROR') {
                 var mismatchErrTime = new Date().getTime()
                 var mismatchTimeout = 0
                 if (this.connectStartTime != 0) {
@@ -400,7 +404,7 @@ ePOSDevice.prototype = {
                     this.cleanup()
                 }
             } else {
-                if (eposmsg.code == "PARAM_ERROR") {
+                if (eposmsg.code == 'PARAM_ERROR') {
                     this.conectionObj.registIFAccessResult(this.conectionObj.IF_EPOSDEVICE, this.conectionObj.ACCESS_ERROR)
                     this.cleanup()
                 } else {
@@ -413,7 +417,7 @@ ePOSDevice.prototype = {
             this.cleanup()
         }
     },
-    procAdminInfo: function (eposmsg) {
+    procAdminInfo(eposmsg) {
         if (this.eposprint) {
             return
         }
@@ -425,7 +429,7 @@ ePOSDevice.prototype = {
         this.location = eposmsg.data.location
         this.conectionObj.registIFAccessResult(this.conectionObj.IF_EPOSDEVICE, this.conectionObj.ACCESS_OK)
     },
-    procReconnect: function (eposmsg) {
+    procReconnect(eposmsg) {
         if (this.conectionObj.status(this.conectionObj.IF_EPOSDEVICE) != this.conectionObj.RECONNECTING) {
             return
         }
@@ -438,8 +442,8 @@ ePOSDevice.prototype = {
             this.cleanup()
         }
     },
-    procDisconnect: function (eposmsg) { },
-    procOpenDevice: function (eposmsg) {
+    procDisconnect(eposmsg) { },
+    procOpenDevice(eposmsg) {
         var deviceId = eposmsg.deviceId
         try {
             var element = this.devObjElmMap.get(deviceId)
@@ -455,11 +459,11 @@ ePOSDevice.prototype = {
             }
         } catch (e) {
             if (this.onerror != null) {
-                this.onerror("0", deviceId, this.ERROR_SYSTEM, null)
+                this.onerror('0', deviceId, this.ERROR_SYSTEM, null)
             }
         }
     },
-    procCloseDevice: function (eposmsg) {
+    procCloseDevice(eposmsg) {
         var deviceId = eposmsg.deviceId
         try {
             if (eposmsg.code == this.RESULT_OK) {
@@ -474,11 +478,11 @@ ePOSDevice.prototype = {
             }
         } catch (e) {
             if (this.onerror != null) {
-                this.onerror("0", deviceId, this.ERROR_SYSTEM, null)
+                this.onerror('0', deviceId, this.ERROR_SYSTEM, null)
             }
         }
     },
-    procDeviceData: function (eposmsg) {
+    procDeviceData(eposmsg) {
         var deviceId = eposmsg.deviceId
         var sequence = eposmsg.sequence
         var data = eposmsg.data
@@ -488,15 +492,15 @@ ePOSDevice.prototype = {
                 data = MessageFactory.decrypt(data)
             }
             var deviceObject = devObjElm.deviceObject
-            var method = "client_" + data.type
+            var method = 'client_' + data.type
             try {
                 if (deviceObject instanceof OtherPeripheral) {
                     deviceObject.client_onreceive(data, sequence)
                 } else {
-                    eval("deviceObject." + method + "(data, sequence)")
+                    eval('deviceObject.' + method + '(data, sequence)')
                 }
             } catch (e) {
-                eval("deviceObject." + data.type + "(data, sequence)")
+                eval('deviceObject.' + data.type + '(data, sequence)')
             }
         } catch (e) {
             if (this.onerror != null) {
@@ -504,10 +508,10 @@ ePOSDevice.prototype = {
             }
         }
     },
-    procServiceData: function (eposmsg) {
+    procServiceData(eposmsg) {
         try {
             switch (eposmsg.serviceId) {
-                case "OFSC":
+                case 'OFSC':
                     this.ofsc.notify(eposmsg)
                     break
                 default:
@@ -519,44 +523,44 @@ ePOSDevice.prototype = {
             }
         }
     },
-    procOpenCommBox: function (eposmsg) {
+    procOpenCommBox(eposmsg) {
         var sequence = eposmsg.sequence
         try {
             this.commBoxManager.client_opencommbox(eposmsg.data, sequence)
         } catch (e) {
             if (this.onerror != null) {
-                this.onerror(sequence, "", this.ERROR_SYSTEM, null)
+                this.onerror(sequence, '', this.ERROR_SYSTEM, null)
             }
         }
     },
-    procCloseCommBox: function (eposmsg) {
+    procCloseCommBox(eposmsg) {
         var sequence = eposmsg.sequence
         try {
             this.commBoxManager.client_closecommbox(eposmsg.data, sequence)
         } catch (e) {
             if (this.onerror != null) {
-                this.onerror(sequence, "", this.ERROR_SYSTEM, null)
+                this.onerror(sequence, '', this.ERROR_SYSTEM, null)
             }
         }
     },
-    procCommBoxData: function (eposmsg) {
+    procCommBoxData(eposmsg) {
         var sequence = eposmsg.sequence
         try {
             this.commBoxManager.executeCommDataCallback(eposmsg.data, sequence)
         } catch (e) {
             if (this.onerror != null) {
-                this.onerror(sequence, "", this.ERROR_SYSTEM, null)
+                this.onerror(sequence, '', this.ERROR_SYSTEM, null)
             }
         }
     },
-    procError: function (eposmsg) {
+    procError(eposmsg) {
         try {
             if (this.onerror != null) {
                 this.onerror(eposmsg.sequence, eposmsg.deviceId, eposmsg.code, eposmsg.data)
             }
         } catch (e) { }
     },
-    startReconnectAction: function () {
+    startReconnectAction() {
         if (this.conectionObj.status(this.conectionObj.IF_EPOSDEVICE) == this.conectionObj.RECONNECTING) {
             return
         }
@@ -581,15 +585,15 @@ ePOSDevice.prototype = {
             this.onreconnecting()
         }
     },
-    checkEposPrintService: function (deviceId, deviceType, callback) {
-        var OK = "OK"
-        var SSL_CONNECT_OK = "SSL_CONNECT_OK"
-        var ERROR_TIMEOUT = "ERROR_TIMEOUT"
-        var ERROR_PARAMETER = "ERROR_PARAMETER"
-        var ERROR_SYSTEM = "SYSTEM_ERROR"
+    checkEposPrintService(deviceId, deviceType, callback) {
+        var OK = 'OK'
+        var SSL_CONNECT_OK = 'SSL_CONNECT_OK'
+        var ERROR_TIMEOUT = 'ERROR_TIMEOUT'
+        var ERROR_PARAMETER = 'ERROR_PARAMETER'
+        var ERROR_SYSTEM = 'SYSTEM_ERROR'
         var postUrl = null
-        var printUrl = this.conectionObj.getAddressWithProtocol() + "/cgi-bin/epos/service.cgi?devid=" + deviceId + "&timeout=10000"
-        var displayUrl = this.conectionObj.getAddressWithProtocol() + "/cgi-bin/eposDisp/service.cgi?devid=" + deviceId + "&timeout=10000"
+        var printUrl = this.conectionObj.getAddressWithProtocol() + '/cgi-bin/epos/service.cgi?devid=' + deviceId + '&timeout=10000'
+        var displayUrl = this.conectionObj.getAddressWithProtocol() + '/cgi-bin/eposDisp/service.cgi?devid=' + deviceId + '&timeout=10000'
         var postData = null
         var printData = '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"></epos-print></s:Body></s:Envelope>'
         var displayData = '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-display xmlns="http://www.epson-pos.com/schemas/2012/09/epos-display"></epos-display></s:Body></s:Envelope>'
@@ -606,7 +610,7 @@ ePOSDevice.prototype = {
         if (window.XDomainRequest) {
             try {
                 xhr = new XDomainRequest()
-                xhr.open("POST", postUrl)
+                xhr.open('POST', postUrl)
                 xhr.onload = function () {
                     if (/response/.test(xhr.responseText)) {
                         success = /success\s*=\s*"\s*(1|true)\s*"/.test(xhr.responseText)
@@ -633,19 +637,19 @@ ePOSDevice.prototype = {
         } else {
             try {
                 xhr = new XMLHttpRequest()
-                xhr.open("POST", postUrl, true)
-                xhr.setRequestHeader("Content-Type", "text/xml; charset=utf-8")
-                xhr.setRequestHeader("If-Modified-Since", "Thu, 01 Jun 1970 00:00:00 GMT")
-                xhr.setRequestHeader("SOAPAction", '""')
+                xhr.open('POST', postUrl, true)
+                xhr.setRequestHeader('Content-Type', 'text/xml; charset=utf-8')
+                xhr.setRequestHeader('If-Modified-Since', 'Thu, 01 Jun 1970 00:00:00 GMT')
+                xhr.setRequestHeader('SOAPAction', '""')
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4) {
                         clearTimeout(tid)
                         if ((xhr.status == 200) && (xhr.responseXML)) {
-                            var res = xhr.responseXML.getElementsByTagName("response")
+                            var res = xhr.responseXML.getElementsByTagName('response')
                             if (res.length <= 0) {
                                 success = false
                             } else {
-                                success = /^(1|true)$/.test(res[0].getAttribute("success"))
+                                success = /^(1|true)$/.test(res[0].getAttribute('success'))
                             }
                             if (success) {
                                 callback(OK)
@@ -667,5 +671,5 @@ ePOSDevice.prototype = {
                 callback(ERROR_PARAMETER)
             }
         }
-    }
+    },
 }

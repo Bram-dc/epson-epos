@@ -1,3 +1,10 @@
+export default class SimpleSerial {
+
+
+
+}
+
+
 function SimpleSerial(deviceID, isCrypto) {
     this.deviceID = deviceID
     this.isCrypto = isCrypto

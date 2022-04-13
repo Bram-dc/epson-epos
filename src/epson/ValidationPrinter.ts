@@ -1,4 +1,4 @@
-import ePOSBuilder from '../..'
+import ePOSBuilder from './ePOSBuilder'
 
 export default class ValidationPrinter extends ePOSBuilder {
     private parent: HybridPrinter

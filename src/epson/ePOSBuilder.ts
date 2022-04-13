@@ -1,6 +1,6 @@
-import { regexAlign, regexBarcode, regexColor, regexCut, regexDirection, regexDrawer, regexFeed, regexFont, regexHri, regexLayout, regexLevel, regexLine, regexMode, regexPattern, regexPulse, regexSymbol } from '../../constants/regex'
-import { Align, Barcode, Color, Cut, Direction, Drawer, Feed, Font, HRI, Paper, Level, Line, Mode, Pattern, Pulse, Symbol_ } from '../../functions/enums'
-import { escapeControl, escapeMarkup, getBoolAttr, getEnumAttr, getEnumIntAttr, getIntAttr, getShortAttr, getUByteAttr, getUShortAttr, toBase64Binary, toGrayImage, toHexBinary, toMonoImage } from '../../functions/misc'
+import { regexAlign, regexBarcode, regexColor, regexCut, regexDirection, regexDrawer, regexFeed, regexFont, regexHri, regexLayout, regexLevel, regexLine, regexMode, regexPattern, regexPulse, regexSymbol } from '../constants/regex'
+import { Align, Barcode, Color, Cut, Direction, Drawer, Feed, Font, HRI, Paper, Level, Line, Mode, Pattern, Pulse, Symbol_ } from '../functions/enums'
+import { escapeControl, escapeMarkup, getBoolAttr, getEnumAttr, getEnumIntAttr, getIntAttr, getShortAttr, getUByteAttr, getUShortAttr, toBase64Binary, toGrayImage, toHexBinary, toMonoImage } from '../functions/misc'
 
 export default class ePOSBuilder {
     message = ''
@@ -15,34 +15,52 @@ export default class ePOSBuilder {
     }
 
     addText(data: string) {
+
         this.message += '<text>' + escapeMarkup(data) + '</text>'
+
         return this
+
     }
 
     addTextLang(lang: string) {
+
         this.message += '<text lang="' + lang + '"/>'
+
         return this
+
     }
 
     addTextAlign(align: Align) {
+
         let s = ''
         s += getEnumAttr('align', align, regexAlign)
+
         this.message += '<text' + s + '/>'
+
         return this
+
     }
 
     addTextRotate(rotate: boolean) {
+
         let s = ''
         s += getBoolAttr('rotate', rotate)
+
         this.message += '<text' + s + '/>'
+
         return this
+
     }
 
     addTextLineSpace(linespc: number) {
+
         let s = ''
         s += getUByteAttr('linespc', linespc)
+
         this.message += '<text' + s + '/>'
+
         return this
+
     }
 
     addTextFont(font: Font) {
@@ -53,92 +71,129 @@ export default class ePOSBuilder {
     }
 
     addTextSmooth(smooth: boolean) {
+
         let s = ''
         s += getBoolAttr('smooth', smooth)
+
         this.message += '<text' + s + '/>'
+
         return this
+
     }
 
     addTextDouble(dw?: boolean, dh?: boolean) {
+
         let s = ''
-        if (dw !== undefined) {
+        if (dw !== undefined)
             s += getBoolAttr('dw', dw)
-        }
-        if (dh !== undefined) {
+
+        if (dh !== undefined)
             s += getBoolAttr('dh', dh)
-        }
+
+
         this.message += '<text' + s + '/>'
+
         return this
+
     }
 
     addTextSize(width?: number, height?: number) {
+
         let s = ''
-        if (width !== undefined) {
+        if (width !== undefined)
             s += getIntAttr('width', width, 1, 8)
-        }
-        if (height !== undefined) {
+
+        if (height !== undefined)
             s += getIntAttr('height', height, 1, 8)
-        }
+
         this.message += '<text' + s + '/>'
+
         return this
+
     }
 
     addTextStyle(reverse?: boolean, ul?: boolean, em?: boolean, color?: Color) {
+
         let s = ''
-        if (reverse !== undefined) {
+        if (reverse !== undefined)
             s += getBoolAttr('reverse', reverse)
-        }
-        if (ul !== undefined) {
+
+        if (ul !== undefined)
             s += getBoolAttr('ul', ul)
-        }
-        if (em !== undefined) {
+
+        if (em !== undefined)
             s += getBoolAttr('em', em)
-        }
-        if (color !== undefined) {
+
+        if (color !== undefined)
             s += getEnumAttr('color', color, regexColor)
-        }
+
         this.message += '<text' + s + '/>'
+
         return this
+
     }
 
     addTextPosition(x: number) {
+
         let s = ''
         s += getUShortAttr('x', x)
+
         this.message += '<text' + s + '/>'
+
         return this
+
     }
 
     addTextVPosition(y: number) {
+
         let s = ''
         s += getUShortAttr('y', y)
+
         this.message += '<text' + s + '/>'
+
         return this
+
     }
 
     addFeedUnit(unit: number) {
+
         let s = ''
         s += getUByteAttr('unit', unit)
+
         this.message += '<feed' + s + '/>'
+
         return this
+
     }
 
     addFeedLine(line: number) {
+
         let s = ''
         s += getUByteAttr('line', line)
+
         this.message += '<feed' + s + '/>'
+
         return this
+
     }
 
     addFeed() {
+
         this.message += '<feed/>'
+
         return this
+
     }
 
     addFeedPosition(pos: Feed) {
+
         let s = ''
         s += getEnumAttr('pos', pos, regexFeed)
+
         this.message += '<feed' + s + '/>'
+
         return this
+
     }
 
     addImage(context: any, x: number, y: number, width: number, height: number, color?: Color, mode?: Mode) { // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -337,66 +392,87 @@ export default class ePOSBuilder {
     }
 
     addSound(pattern?: Pattern, repeat?: number, cycle?: number) {
+
         let s = ''
-        if (pattern !== undefined) {
+
+        if (pattern !== undefined)
             s += getEnumAttr('pattern', pattern, regexPattern)
-        }
-        if (repeat !== undefined) {
+
+        if (repeat !== undefined)
             s += getUByteAttr('repeat', repeat)
-        }
-        if (cycle !== undefined) {
+
+        if (cycle !== undefined)
             s += getUShortAttr('cycle', cycle)
-        }
+
         this.message += '<sound' + s + '/>'
+
         return this
+
     }
 
     addLayout(type: Paper, width?: number, height?: number, margin_top?: number, margin_bottom?: number, offset_cut?: number, offset_label?: number) {
+
         let s = ''
+
         s += getEnumAttr('type', type, regexLayout)
-        if (width !== undefined) {
+
+        if (width !== undefined)
             s += getUShortAttr('width', width)
-        }
-        if (height !== undefined) {
+
+        if (height !== undefined)
             s += getUShortAttr('height', height)
-        }
-        if (margin_top !== undefined) {
+
+        if (margin_top !== undefined)
             s += getShortAttr('margin-top', margin_top)
-        }
-        if (margin_bottom !== undefined) {
+
+        if (margin_bottom !== undefined)
             s += getShortAttr('margin-bottom', margin_bottom)
-        }
-        if (offset_cut !== undefined) {
+
+        if (offset_cut !== undefined)
             s += getShortAttr('offset-cut', offset_cut)
-        }
-        if (offset_label !== undefined) {
+
+        if (offset_label !== undefined)
             s += getShortAttr('offset-label', offset_label)
-        }
+
         this.message += '<layout' + s + '/>'
+
         return this
+
     }
 
     addRecovery() {
+
         this.message += '<recovery/>'
+
         return this
+
     }
 
     addReset() {
+
         this.message += '<reset/>'
+
         return this
+
     }
 
     addCommand(data: string) {
+
         this.message += '<command>' + toHexBinary(data) + '</command>'
+
         return this
+
     }
 
     toString() {
+
         let s = ''
-        if (this.force) {
+
+        if (this.force)
             s += getBoolAttr('force', true)
-        }
+
         return '<epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"' + s + '>' + this.message + '</epos-print>'
+
     }
 
 }

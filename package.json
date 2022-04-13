@@ -1,7 +1,7 @@
 {
     "name": "epson-epos",
     "version": "2.20.0",
-    "description": "A soon-to-be typescript port of the EPSON ePOS SDK, with Print-API version 5.0.0. Created by rewriting the minfied SDK and using the official documentation, while keeping the original class naming.",
+    "description": "A soon-to-be typescript port of the EPSON ePOS SDK, with Print-API version 5.0.0. Created by rewriting the minified SDK and using the official documentation, while keeping the original class naming.",
     "main": "index.js",
     "scripts": {
         "build": "rimraf ./build && tsc"
@@ -12,6 +12,7 @@
         "socket.io-client": "0.8.7"
     },
     "devDependencies": {
+        "@types/socket.io-client": "1.4.36",
         "@typescript-eslint/eslint-plugin": "^5.10.2",
         "@typescript-eslint/parser": "^5.10.2",
         "eslint": "^8.8.0",

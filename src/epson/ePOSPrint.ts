@@ -1,34 +1,44 @@
-import ePOSBuilder from '..'
-import { ASB } from '../../../functions/enums'
+import ePOSBuilder from './ePOSBuilder'
+import { ASB } from '../functions/enums'
+import { fireErrorEvent, fireReceiveEvent, fireStatusEvent, updateStatus } from '../functions/events'
 
 export default class ePOSPrint extends ePOSBuilder {
-    address: string
+    address?: string
     enabled = false
     interval = 3000
     timeout = 300000
     status = 0
     battery = 0
     drawerOpenLevel = 0
-    onreceive = null
-    onerror = null
-    onstatuschange = null
-    ononline = null
-    onoffline = null
-    onpoweroff = null
-    oncoverok = null
-    oncoveropen = null
-    onpaperok = null
-    onpaperend = null
-    onpapernearend = null
-    ondrawerclosed = null
-    ondraweropen = null
-    onbatterylow = null
-    onbatteryok = null
-    onbatterystatuschange = null
-    intervalid?: NodeJS.Timeout = undefined
-    intervalxhr?: XMLHttpRequest = undefined
+    onreceive: ((data: {
+        success: boolean,
+        code: string,
+        status: number,
+        battery: number,
+        printjobid?: string,
+    }) => void) | null = null
+    onerror: ((data: {
+        status: number,
+        responseText: string,
+    }) => void) | null = null
+    onstatuschange: ((status: number) => void) | null = null
+    ononline: (() => void) | null = null
+    onoffline: (() => void) | null = null
+    onpoweroff: (() => void) | null = null
+    oncoverok: (() => void) | null = null
+    oncoveropen: (() => void) | null = null
+    onpaperok: (() => void) | null = null
+    onpaperend: (() => void) | null = null
+    onpapernearend: (() => void) | null = null
+    ondrawerclosed: (() => void) | null = null
+    ondraweropen: (() => void) | null = null
+    onbatterylow: (() => void) | null = null
+    onbatteryok: (() => void) | null = null
+    onbatterystatuschange: ((battery: number) => null) | null = null
+    intervalid?: NodeJS.Timeout
+    intervalxhr?: XMLHttpRequest
 
-    constructor(address: string) {
+    constructor(address?: string) {
         super()
 
         this.address = address
@@ -93,7 +103,7 @@ export default class ePOSPrint extends ePOSBuilder {
 
         const xhr = new XMLHttpRequest()
 
-        xhr.open('POST', address, true)
+        xhr.open('POST', address ?? '', true)
 
         xhr.setRequestHeader('Content-Type', 'text/xml; charset=utf-8')
         xhr.setRequestHeader('If-Modified-Since', 'Thu, 01 Jan 1970 00:00:00 GMT')

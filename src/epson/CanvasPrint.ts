@@ -1,14 +1,6 @@
-import ePOSPrint from '..'
-import { Align, Color, Cut, Feed, Paper, Mode } from '../../../../functions/enums'
-
-type Layout = {
-    width: number
-    height: number
-    margin_top: number
-    margin_bottom: number
-    offset_cut: number
-    offset_label: number
-}
+import ePOSPrint from './ePOSPrint'
+import { Align, Color, Cut, Feed, Paper, Mode } from '../functions/enums'
+import Connection from './Connection'
 
 export default class CanvasPrint extends ePOSPrint {
     mode = Mode.MONO
@@ -19,10 +11,10 @@ export default class CanvasPrint extends ePOSPrint {
     paper = Paper.RECEIPT
     feed = Feed.CURRENT_TOF
     cut = false
-    layout: Layout | null = null
+    layout: CanvasLayout | null = null
     connectionObj: Connection | null = null
 
-    constructor(address: string) {
+    constructor(address?: string) {
         super(address)
     }
 
@@ -80,18 +72,18 @@ export default class CanvasPrint extends ePOSPrint {
                 this.addCut(Cut.FEED)
             }
         }
-        this.send(address, this.toString(), printjobid)
+        this.send(address ?? '', this.toString(), printjobid)
     }
 
     recover() {
         this.force = true
         this.addRecovery()
-        this.send(this.address, this.toString())
+        this.send(this.address ?? '', this.toString())
     }
 
     reset() {
         this.addReset()
-        this.send(this.address, this.toString())
+        this.send(this.address ?? '', this.toString())
     }
 
 }

@@ -1,14 +1,22 @@
-function CommBox(boxID, commBoxManager, callbackInfo) {
-    this.ERROR_OK = "OK"
-    this.ERROR_NOT_OPENED = "NOT_OPENED"
-    this.ERROR_MEMBER_NOT_FOUND = "MEMBER_NOT_FOUND"
-    this.ERROR_SYSTEM_ERROR = "SYSTEM_ERROR"
-    this.boxID = boxID
-    this.commBoxManager = commBoxManager
-    this.callbackInfo = callbackInfo
-    this.onreceive = null
-    this.connectionObj = this.commBoxManager.connectionObj
+export default class CommBox {
+    boxID: string
+    commBoxManager: CommBoxManager
+    callbackInfo: string
+    onreceive = null
+    connectionObj
+
+    constructor(boxID: string, commBoxManager: CommBoxManager, callbackInfo: string) {
+
+        this.boxID = boxID
+        this.commBoxManager = commBoxManager
+        this.callbackInfo = callbackInfo
+        this.connectionObj = commBoxManager.connectionObj
+
+    }
+
 }
+
+
 CommBox.prototype = {
     getCommHistory: function (option, callback) {
         var _option = (typeof (option) == "function") ? null : option

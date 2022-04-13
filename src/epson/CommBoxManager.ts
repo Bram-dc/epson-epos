@@ -1,43 +1,57 @@
-function CommBoxManager() {
-    this.ERROR_OK = 'OK'
-    this.ERROR_BOX_COUNT_OVER = 'BOX_COUNT_OVER'
-    this.ERROR_BOX_CLIENT_OVER = 'BOX_CLIENT_OVER'
-    this.ERROR_MEMBERID_ALREADY_USED = 'MEMBERID_ALREADY_USED'
-    this.ERROR_ALREADY_OPENED = 'ALREADY_OPENED'
-    this.ERROR_NOT_OPENED = 'NOT_OPENED'
-    this.ERROR_PARAMETER_ERROR = 'PARAMETER_ERROR'
-    this.ERROR_SYSTEM_ERROR = 'SYSTEM_ERROR'
-    this.callbackInfo = new callbackInfo()
-    this.commBoxList = new Array()
-    this.connectionObj = null
-}
-CommBoxManager.prototype = {
-    setConnectionObject: function (connectionObj) {
+import { CommBoxManagerResult } from '../functions/enums'
+import MessageFactory from '../MessageFactory'
+import callbackInfo from './callbackInfo'
+import Connection from './Connection'
+
+export default class CommBoxManager {
+    callbackInfo = new callbackInfo()
+    commBoxList = []
+    connectionObj: Connection | null = null
+
+    constructor() {
+
+        //
+
+    }
+
+    setConnectionObject(connectionObj: Connection) {
+
         this.connectionObj = connectionObj
-    },
-    openCommBox: function (boxID, option, callback) {
-        var memberID = ''
-        if (option != null && option.memberID != null) {
+
+    }
+
+    openCommBox(boxID: string, option: { memberID: string } | null, callback: () => void) {
+
+        let memberID = ''
+
+        if (option !== null && option.memberID !== null)
             memberID = option.memberID
-        }
-        var data = {
+
+        const data = {
             box_id: boxID,
-            member_id: memberID
+            member_id: memberID,
         }
-        var eposmsg = MessageFactory.getOpenCommBoxMessage(data)
-        if (!this.connectionObj.isUsableDeviceIF()) {
-            callback(null, this.ERROR_SYSTEM_ERROR, eposmsg.sequence)
+
+        const eposmsg = MessageFactory.getOpenCommBoxMessage(data)
+
+        if (this.connectionObj === null || !this.connectionObj.isUsableDeviceIF()) {
+            callback(null, CommBoxManagerResult.SYSTEM_ERROR, eposmsg.sequence)
             return eposmsg.sequence
         }
+
         this.connectionObj.emit(eposmsg)
-        this.callbackInfo.addCallback(callback, eposmsg.sequence)
+
+        this.callbackInfo.addCallback(callback, String(eposmsg.sequence))
+
         return eposmsg.sequence
-    },
-    closeCommBox: function (boxObj, callback) {
-        var data = {
-            box_id: boxID
+
+    }
+
+    closeCommBox(boxObj, callback) {
+        const data = {
+            box_id: boxID,
         }
-        var eposmsg = MessageFactory.getCloseCommBoxMessage(data)
+        let eposmsg = MessageFactory.getCloseCommBoxMessage(data)
         try {
             var boxID = boxObj.getBoxId()
             data.box_id = boxID
@@ -56,59 +70,64 @@ CommBoxManager.prototype = {
         }
         this.callbackInfo.addCallback(callback, eposmsg.sequence)
         return eposmsg.sequence
-    },
-    client_opencommbox: function (data, sq) {
-        var boxID = data.box_id
-        var code = data.code
-        var commBoxObj = null
+    }
+
+    client_opencommbox(data, sq) {
+        const boxID = data.box_id
+        const code = data.code
+        let commBoxObj = null
         if (code == this.ERROR_OK && this.getCommBox(boxID) == null) {
             commBoxObj = new CommBox(boxID, this, this.callbackInfo)
         }
         if (commBoxObj != null) {
             this.commBoxList.push(commBoxObj)
         }
-        var openCommBoxCB = this.callbackInfo.getCallback(sq)
+        const openCommBoxCB = this.callbackInfo.getCallback(sq)
         this.callbackInfo.removeCallback(sq)
         if (openCommBoxCB != null) {
             openCommBoxCB(commBoxObj, code, sq)
         }
         return
-    },
-    client_closecommbox: function (data, sq) {
-        var boxID = data.box_id
-        var code = data.code
+    }
+
+    client_closecommbox(data, sq) {
+        const boxID = data.box_id
+        const code = data.code
         this.removeCommBox(boxID)
-        var closeCommBoxCB = this.callbackInfo.getCallback(sq)
+        const closeCommBoxCB = this.callbackInfo.getCallback(sq)
         this.callbackInfo.removeCallback(sq)
         if (closeCommBoxCB != null) {
             closeCommBoxCB(code, sq)
         }
         return
-    },
-    executeCommDataCallback: function (data, sq) {
-        var boxID = data.box_id
-        var commBoxObj = this.getCommBox(boxID)
-        var method = 'client_' + data.type
+    }
+
+    executeCommDataCallback(data, sq) {
+        const boxID = data.box_id
+        const commBoxObj = this.getCommBox(boxID)
+        const method = 'client_' + data.type
         try {
             eval('commBoxObj.' + method + '(data, sq)')
         } catch (e) {
             throw new Error('')
         }
         return
-    },
-    getCommBox: function (boxID) {
-        var commBoxObj = null
-        for (var i = 0; i < this.commBoxList.length; i++) {
+    }
+
+    getCommBox(boxID) {
+        let commBoxObj = null
+        for (let i = 0; i < this.commBoxList.length; i++) {
             if (this.commBoxList[i].getBoxId() == boxID) {
                 commBoxObj = this.commBoxList[i]
                 break
             }
         }
         return commBoxObj
-    },
-    removeCommBox: function (boxID) {
-        var result = false
-        for (var i = 0; i < this.commBoxList.length; i++) {
+    }
+
+    removeCommBox(boxID) {
+        let result = false
+        for (let i = 0; i < this.commBoxList.length; i++) {
             if (this.commBoxList[i].getBoxId() == boxID) {
                 this.commBoxList.splice(i, 1)
                 result = true
@@ -116,10 +135,11 @@ CommBoxManager.prototype = {
             }
         }
         return result
-    },
-    isOpened: function (boxID) {
-        var result = false
-        for (var i = 0; i < this.commBoxList.length; i++) {
+    }
+
+    isOpened(boxID) {
+        let result = false
+        for (let i = 0; i < this.commBoxList.length; i++) {
             if (this.commBoxList[i].getBoxId() == boxID) {
                 result = true
                 break
@@ -127,4 +147,5 @@ CommBoxManager.prototype = {
         }
         return result
     }
+
 }
