@@ -1,14 +1,16 @@
+import { ASB } from '../functions/enums'
+import MessageFactory from '../MessageFactory'
 import CanvasPrint from './CanvasPrint'
 import ePOSBuilder from './ePOSBuilder'
 
 export default class Printer extends CanvasPrint {
-    deviceID?: string
-    isCrypto?: boolean
-    ePosDev?: any
+    deviceID: string
+    isCrypto: boolean
+    ePosDev: any
     timeout = 10000
     timeoutid?: NodeJS.Timeout
 
-    constructor(deviceID?: string, isCrypto?: boolean, ePOSDeviceContext?: any) {
+    constructor(deviceID: string, isCrypto: boolean, ePOSDeviceContext: any) {
         super()
 
         this.deviceID = deviceID
@@ -18,20 +20,29 @@ export default class Printer extends CanvasPrint {
     }
 
     finalize() {
+
         this.stopMonitor()
+
     }
 
     setXmlString(xml: string) {
+
         this.message = xml
+
     }
 
     getXmlString() {
+
         return this.message
+
     }
 
     getPrintJobStatus(printjobid: string) {
+
         this.setXmlString('')
+
         this.send(printjobid)
+
     }
 
     send(printjobid?: string | null) {
@@ -62,43 +73,46 @@ export default class Printer extends CanvasPrint {
                         data.printdata = arguments[1]
                         data.printjobid = arguments[2]
                 }
-                var eposmsg = MessageFactory.getDeviceDataMessage(this.deviceID, data, this.isCrypto)
-                var sequence = -1
+                const eposmsg = MessageFactory.getDeviceDataMessage(this.deviceID, data, this.isCrypto)
+                let sequence = -1
                 try {
                     this.connectionObj.emit(eposmsg)
                     sequence = eposmsg.sequence
                 } catch (e) { }
                 this.force = false
-                this.setXmlString("")
+                this.setXmlString('')
             } catch (e) {
                 sq = -1
             }
         } else {
+
             let self = this,
-                address = this.connectionObj?.getAddressWithProtocol() + "/cgi-bin/epos/service.cgi?devid=" + this.deviceID + "&timeout=" + this.timeout,
+                address = this.connectionObj?.getAddressWithProtocol() + '/cgi-bin/epos/service.cgi?devid=' + this.deviceID + '&timeout=' + this.timeout,
                 soap: string, xhr: XMLHttpRequest, tid: NodeJS.Timeout, res: HTMLCollectionOf<Element>, success, code, status, battery
             soap = '<?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">'
             if (printjobid) {
-                soap += '<s:Header><parameter xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><printjobid>' + printjobid + "</printjobid></parameter></s:Header>"
+                soap += '<s:Header><parameter xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><printjobid>' + printjobid + '</printjobid></parameter></s:Header>'
             }
-            soap += "<s:Body>" + this.toString() + "</s:Body></s:Envelope>"
+            soap += '<s:Body>' + this.toString() + '</s:Body></s:Envelope>'
+
+
             if (window.XMLHttpRequest) {
                 xhr = new XMLHttpRequest()
-                xhr.open("POST", address, true)
-                xhr.setRequestHeader("Content-Type", "text/xml; charset=utf-8")
-                xhr.setRequestHeader("If-Modified-Since", "Thu, 01 Jan 1970 00:00:00 GMT")
-                xhr.setRequestHeader("SOAPAction", '""')
+                xhr.open('POST', address, true)
+                xhr.setRequestHeader('Content-Type', 'text/xml; charset=utf-8')
+                xhr.setRequestHeader('If-Modified-Since', 'Thu, 01 Jan 1970 00:00:00 GMT')
+                xhr.setRequestHeader('SOAPAction', '""')
                 xhr.onreadystatechange = () => {
                     if (xhr.readyState == 4) {
                         clearTimeout(tid)
                         if (xhr.status == 200 && xhr.responseXML) {
                             res = xhr.responseXML.getElementsByTagName('response')
                             if (res.length > 0) {
-                                success = /^(1|true)$/.test(res[0].getAttribute("success") ?? '')
-                                code = res[0].hasAttribute("code") ? res[0].getAttribute("code") : ''
-                                status = res[0].hasAttribute("status") ? parseInt(res[0].getAttribute("status") ?? '') : 0
-                                battery = res[0].hasAttribute("battery") ? parseInt(res[0].getAttribute("battery") ?? '') : 0
-                                res = xhr.responseXML.getElementsByTagName("printjobid")
+                                success = /^(1|true)$/.test(res[0].getAttribute('success') ?? '')
+                                code = res[0].hasAttribute('code') ? res[0].getAttribute('code') : ''
+                                status = res[0].hasAttribute('status') ? parseInt(res[0].getAttribute('status') ?? '') : 0
+                                battery = res[0].hasAttribute('battery') ? parseInt(res[0].getAttribute('battery') ?? '') : 0
+                                res = xhr.responseXML.getElementsByTagName('printjobid')
                                 printjobid = res.length > 0 ? res[0].textContent : ''
                                 self.fireReceiveEvent(success, code, status, battery, printjobid, 0)
                             } else {
@@ -114,157 +128,149 @@ export default class Printer extends CanvasPrint {
                 }, this.timeout)
                 xhr.send(soap)
             }
-            this.setXmlString("")
+            this.setXmlString('')
             sq = 0
         }
         return sq
     }
 
     client_onxmlresult(res: HTMLCollectionOf<Element>, sq: number) {
-        if (res) {
-            var xml = res.resultdata
-            var success = /success\s*=\s*"\s*(1|true)\s*"/.test(xml)
-            xml.match(/code\s*=\s*"\s*(\S*)\s*"/)
-            var code = RegExp.$1
-            xml.match(/status\s*=\s*"\s*(\d+)\s*"/)
-            var status = parseInt(RegExp.$1)
-            xml.match(/battery\s*=\s*"\s*(\d+)\s*"/)
-            var battery = parseInt(RegExp.$1)
-            this.fireReceiveEvent(success, code, status, battery, res.printjobid, sq)
-        } else {
-            this.fireErrorEvent(0, this.ASB_NO_RESPONSE, sq)
-        }
+
+        if (!res)
+            return this.fireErrorEvent(0, ASB.NO_RESPONSE, sq)
+
+
+        const xml = res.resultdata
+
+        const success = /success\s*=\s*"\s*(1|true)\s*"/.test(xml)
+
+        xml.match(/code\s*=\s*"\s*(\S*)\s*"/)
+        const code = RegExp.$1
+
+        xml.match(/status\s*=\s*"\s*(\d+)\s*"/)
+        const status = parseInt(RegExp.$1)
+
+        xml.match(/battery\s*=\s*"\s*(\d+)\s*"/)
+        const battery = parseInt(RegExp.$1)
+
+        this.fireReceiveEvent(success, code, status, battery, res.printjobid, sq)
+
     }
 
     startMonitor() {
-        var result = false
-        var address = this.connectionObj.getAddressWithProtocol() + "/cgi-bin/epos/service.cgi?devid=" + this.deviceID + "&timeout=10000"
-        try {
-            if (!this.enabled) {
-                this.address = address
-                this.enabled = true
-                this.status = this.ASB_DRAWER_KICK
-                this.sendStartMonitorCommand()
-            }
-            result = true
-        } catch (e) {
-            throw e
+
+        const address = this.connectionObj!.getAddressWithProtocol() + '/cgi-bin/epos/service.cgi?devid=' + this.deviceID + '&timeout=10000'
+
+        if (!this.enabled) {
+            this.address = address
+            this.enabled = true
+            this.status = ASB.DRAWER_KICK
+            this.sendStartMonitorCommand()
         }
-        return result
+
+        return true
+
     }
 
     sendStartMonitorCommand() {
-        var self = this
-        var address = this.address
-        var request = new ePOSBuilder().toString()
-        var soap = '<?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body>' + request + "</s:Body></s:Envelope>"
-        var epos = this
-        if (window.XDomainRequest) {
-            var xdr = new XDomainRequest()
-            xdr.open("POST", address, true)
-            xdr.onload() {
-                var res = xdr.responseText
-                if (/response/.test(res)) {
-                    var success = /success\s*=\s*"\s*(1|true)\s*"/.test(res)
-                    res.match(/code\s*=\s*"\s*(\S*)\s*"/)
-                    var code = RegExp.$1
-                    res.match(/status\s*=\s*"\s*(\d+)\s*"/)
-                    var status = parseInt(RegExp.$1)
-                    res.match(/battery\s*=\s*"\s*(\d+)\s*"/)
-                    var battery = parseInt(RegExp.$1)
-                    self.fireStatusEvent(epos, status, battery)
+
+        const address = this.address!
+        const request = new ePOSBuilder().toString()
+        const soap = '<?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body>' + request + '</s:Body></s:Envelope>'
+
+        fetch(address, {
+            method: 'POST',
+            body: soap,
+            headers: {
+                'Content-Type': 'text/xml; charset=utf-8',
+                'If-Modified-Since': 'Thu, 01 Jun 1970 00:00:00 GMT',
+                'SOAPAction': '""',
+            },
+        })
+            .then(res => {
+
+                if (res.status === 200) {
+
+                    res.text()
+                        .then(text => {
+
+                            const collection = new window
+                                .DOMParser()
+                                .parseFromString(text, 'text/xml')
+                                .getElementsByTagName('response')
+
+                            const success = collection.length ? /^(1|true)$/.test(collection[0].getAttribute('success') ?? '') : false
+                            const code = collection[0].getAttribute('code') ?? ''
+                            const status = parseInt(collection[0].getAttribute('status') ?? '')
+                            const battery = collection[0].hasAttribute('battery') ? parseInt(collection[0].getAttribute('battery') ?? '') : 0
+
+                            this.fireStatusEvent(this, status, battery)
+
+                        })
+                        .catch(() => this.fireStatusEvent(this, ASB.NO_RESPONSE, 0))
+
                 } else {
-                    self.fireStatusEvent(epos, epos.ASB_NO_RESPONSE, 0)
+
+                    this.fireStatusEvent(this, ASB.NO_RESPONSE, 0)
+
                 }
-                self.updateStatus(epos)
-            }
-            xdr.onerror() {
-                self.fireStatusEvent(epos, epos.ASB_NO_RESPONSE)
-                self.updateStatus(epos)
-            }
-            xdr.onprogress() { }
-            xdr.ontimeout = xdr.onerror
-            xdr.send(soap)
-        } else {
-            if (window.XMLHttpRequest) {
-                var xhr = new XMLHttpRequest()
-                xhr.open("POST", address, true)
-                xhr.setRequestHeader("Content-Type", "text/xml; charset=utf-8")
-                xhr.setRequestHeader("If-Modified-Since", "Thu, 01 Jan 1970 00:00:00 GMT")
-                xhr.setRequestHeader("SOAPAction", '""')
-                xhr.onreadystatechange() {
-                    if (xhr.readyState == 4) {
-                        if (xhr.status == 200 && xhr.responseXML) {
-                            var res = xhr.responseXML.getElementsByTagName("response")
-                            if (res.length > 0) {
-                                var success = /^(1|true)$/.test(res[0].getAttribute("success"))
-                                var code = res[0].getAttribute("code")
-                                var status = parseInt(res[0].getAttribute("status"))
-                                var battery = res[0].hasAttribute("battery") ? parseInt(res[0].getAttribute("battery")) : 0
-                                self.fireStatusEvent(epos, status, battery)
-                            } else {
-                                self.fireStatusEvent(epos, epos.ASB_NO_RESPONSE, 0)
-                            }
-                        } else {
-                            self.fireStatusEvent(epos, epos.ASB_NO_RESPONSE, 0)
-                        }
-                        self.updateStatus(epos)
-                    }
-                }
-                xhr.send(soap)
-            } else {
-                throw new Error("XMLHttpRequest is not supported")
-            }
-        }
+
+                this.updateStatus()
+
+            })
+            .catch(() => this.fireStatusEvent(this, ASB.NO_RESPONSE, 0))
+
     }
 
     stopMonitor() {
-        var result = false
-        try {
-            this.enabled = false
-            if (this.timeoutid) {
-                clearTimeout(this.timeoutid)
-                delete this.timeoutid
-            }
-            result = true
-        } catch (e) {
-            throw e
+
+        this.enabled = false
+
+        if (this.timeoutid) {
+            clearTimeout(this.timeoutid)
+            delete this.timeoutid
         }
-        return result
+
+        return true
+
     }
 
     fireReceiveEvent(success, code, status, battery, printjobid, sq) {
+
         delete this.isPrint
-        if (code == "EX_ENPC_TIMEOUT") {
-            code = "ERROR_DEVICE_BUSY"
+
+        if (code == 'EX_ENPC_TIMEOUT') {
+            code = 'ERROR_DEVICE_BUSY'
         }
+
         if (this.onreceive) {
             this.onreceive({
                 success: success,
                 code: code,
                 status: status,
                 battery: battery,
-                printjobid: printjobid
+                printjobid: printjobid,
             }, sq)
         }
+
     }
 
-    fireErrorEvent(status, responseText, sq) {
+    fireErrorEvent(status, responseText, sq: number) {
         if (this.onerror) {
             this.onerror({
                 status: status,
-                responseText: responseText
+                responseText: responseText,
             }, sq)
         }
         this.ePosDev.cleanup()
     }
 
-    fireStatusEvent(epos, status, battery) {
+    fireStatusEvent(epos, status: ASB, battery: number) {
         if (status == 0 || status == this.ASB_NO_RESPONSE) {
             status = this.status | this.ASB_NO_RESPONSE
         }
-        var diff = this.status == this.ASB_DRAWER_KICK ? ~0 : this.status ^ status
-        var difb = this.status == 0 ? ~0 : this.battery ^ battery
+        const diff = this.status == this.ASB_DRAWER_KICK ? ~0 : this.status ^ status
+        const difb = this.status == 0 ? ~0 : this.battery ^ battery
         this.status = status
         this.battery = battery
         if (diff && this.onstatuschange) {
@@ -356,19 +362,24 @@ export default class Printer extends CanvasPrint {
     }
 
     updateStatus() {
-        const self = this
-        if (this.enabled) {
-            let delay = this.interval
-            if (isNaN(delay) || delay < 1000) {
-                delay = 3000
-            }
-            this.timeoutid = setTimeout(function () {
-                delete self.timeoutid
-                if (self.enabled) {
-                    self.sendStartMonitorCommand()
-                }
-            }, delay)
-        }
+
+        if (!this.enabled)
+            return
+
+        let delay = this.interval
+
+        if (isNaN(delay) || delay < 1000)
+            delay = 3000
+
+        this.timeoutid = setTimeout(() => {
+
+            delete this.timeoutid
+
+            if (this.enabled)
+                this.sendStartMonitorCommand()
+
+        }, delay)
+
     }
 
 }

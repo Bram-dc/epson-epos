@@ -6,7 +6,7 @@ export default class ePosDeviceMessage {
     deviceId = ''
     serviceId = ''
     data: Record<string, unknown> = {}
-    isCrypto = '0'
+    isCrypto = false
     code = ''
     data_id = 0
 

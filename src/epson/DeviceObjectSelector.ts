@@ -1,5 +1,11 @@
+import CashChanger from './CashChanger'
 import Connection from './Connection'
+import DeviceTerminal from './DeviceTerminal'
+import GermanyFiscalElement from './GermanyFiscalElement'
+import MSR from './MSR'
+import OtherPeripheral from './OtherPeripheral'
 import Printer from './Printer'
+import SimpleSerial from './SimpleSerial'
 
 const type2objectMap = {
     type_scanner: Scanner,

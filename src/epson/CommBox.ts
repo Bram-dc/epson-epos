@@ -1,11 +1,16 @@
+import { CommBoxResult } from '../functions/enums'
+import MessageFactory from '../MessageFactory'
+import callbackInfo from './callbackInfo'
+import CommBoxManager from './CommBoxManager'
+
 export default class CommBox {
     boxID: string
     commBoxManager: CommBoxManager
-    callbackInfo: string
+    callbackInfo: callbackInfo
     onreceive = null
     connectionObj
 
-    constructor(boxID: string, commBoxManager: CommBoxManager, callbackInfo: string) {
+    constructor(boxID: string, commBoxManager: CommBoxManager, callbackInfo: callbackInfo) {
 
         this.boxID = boxID
         this.commBoxManager = commBoxManager
@@ -14,79 +19,97 @@ export default class CommBox {
 
     }
 
-}
+    getCommHistory(option: { allHistory: boolean | null } | null, callback: (result: CommBoxResult, _: number | null, sequence: number) => void) {
 
-
-CommBox.prototype = {
-    getCommHistory: function (option, callback) {
-        var _option = (typeof (option) == "function") ? null : option
-        var _callback = (typeof (option) == "function") ? option : callback
-        var allHistory = ((_option == null) || (_option.allHistory == null)) ? false : option.allHistory
-        var data = {
-            type: "getcommhistory",
+        const _option = typeof option === 'function' ? null : option
+        const _callback = typeof option === 'function' ? option : callback
+        const allHistory = (_option === null || _option.allHistory === null) ? false : option.allHistory
+        const data = {
+            type: 'getcommhistory',
             box_id: this.boxID,
-            all_history: allHistory
+            all_history: allHistory,
         }
-        var eposmsg = MessageFactory.getCommBoxDataMessage(data)
+
+        const eposmsg = MessageFactory.getCommBoxDataMessage(data)
+
         if (!this.commBoxManager.isOpened(this.getBoxId())) {
-            if (_callback != null) {
-                _callback(this.ERROR_NOT_OPENED, null, eposmsg.sequence)
-            }
+
+            _callback?.(CommBoxResult.NOT_OPENED, null, eposmsg.sequence)
+
             return eposmsg.sequence
         }
+
         this.callbackInfo.addCallback(_callback, eposmsg.sequence)
-        this.connectionObj.emit(eposmsg)
+        this.connectionObj!.emit(eposmsg)
+
         return eposmsg.sequence
-    },
-    send: function (message, memberID, callback) {
-        var data = {
-            type: "send",
+    }
+
+    send(message: string, memberID: string, callback: (result: CommBoxResult, _: number | null, sequence: number) => void) {
+
+        const data = {
+            type: 'send',
             box_id: this.boxID,
             message: message,
-            member_id: memberID
+            member_id: memberID,
         }
-        var eposmsg = MessageFactory.getCommBoxDataMessage(data)
+
+        const eposmsg = MessageFactory.getCommBoxDataMessage(data)
+
         if (!this.commBoxManager.isOpened(this.getBoxId())) {
-            if (callback != null) {
-                callback(this.ERROR_NOT_OPENED, 0, eposmsg.sequence)
-            }
+
+            callback?.(CommBoxResult.NOT_OPENED, 0, eposmsg.sequence)
+
             return eposmsg.sequence
+
         }
+
         this.callbackInfo.addCallback(callback, eposmsg.sequence)
-        this.connectionObj.emit(eposmsg)
+
+        this.connectionObj!.emit(eposmsg)
+
         return eposmsg.sequence
-    },
-    client_getcommhistory: function (data, sq) {
-        var code = data.code
-        var historyList = data.history_list
-        var getCommHistoryCB = this.callbackInfo.getCallback(sq)
+
+    }
+
+    client_getcommhistory(data, sq: number) {
+        const code = data.code
+        const historyList = data.history_list
+        const getCommHistoryCB = this.callbackInfo.getCallback(sq)
         this.callbackInfo.removeCallback(sq)
-        if (getCommHistoryCB != null) {
-            getCommHistoryCB(code, historyList, sq)
-        }
+
+        getCommHistoryCB?.(code, historyList, sq)
+
         return
-    },
-    client_send: function (data, sq) {
-        var code = data.code
-        var count = data.count
-        var sendCB = this.callbackInfo.getCallback(sq)
+    }
+
+    client_send(data, sq: number) {
+
+        const code = data.code
+        const count = data.count
+        const sendCB = this.callbackInfo.getCallback(sq)
         this.callbackInfo.removeCallback(sq)
-        if (sendCB != null) {
-            sendCB(code, count, sq)
-        }
-        return
-    },
-    client_onreceive: function (data, sq) {
-        var rcvData = new Object()
+
+        sendCB?.(code, count, sq)
+
+    }
+
+    client_onreceive(data, sq) {
+
+        const rcvData = new Object()
+
         rcvData.senderId = data.sender_id
         rcvData.receiverId = data.receiver_id
         rcvData.message = data.message
-        if (this.onreceive != null) {
-            this.onreceive(rcvData)
-        }
-        return
-    },
-    getBoxId: function () {
-        return this.boxID
+
+        this.onreceive?.(rcvData)
+
     }
+
+    getBoxId() {
+
+        return this.boxID
+
+    }
+
 }

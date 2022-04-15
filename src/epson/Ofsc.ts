@@ -20,7 +20,7 @@ export default class Ofsc {
 
     }
 
-    send(xml: string, timeout: number, crypto: string, callback: (data: string) => void) {
+    send(xml: string, timeout: number, crypto: boolean, callback: (data: string) => void) {
 
         this.callback = callback
 
@@ -49,12 +49,7 @@ export default class Ofsc {
 
     notify(eposmsg: ePosDeviceMessage) {
 
-        let data = null
-
-        if (eposmsg.isCrypto == '1')
-            data = MessageFactory.decrypt(eposmsg.data)
-        else
-            data = eposmsg.data
+        const data = eposmsg.isCrypto ? MessageFactory.decrypt(eposmsg.data) : eposmsg.data
 
         this.callback?.(data.resultdata)
 

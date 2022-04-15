@@ -7,29 +7,32 @@ export default class callbackInfo {
 
     }
 
-    addCallback(callback: () => void, sq: string) {
+    addCallback(callback: (...args: any[]) => void, sq: number) {
 
-        this.callbackInfoList[sq] = callback
+        this.callbackInfoList[String(sq)] = callback
 
     }
 
-    removeCallback(sq: string) {
+    removeCallback(sq: number) {
 
         for (const i in this.callbackInfoList) {
 
-            if (i == sq) {
+            if (i === String(sq)) {
+
                 delete this.callbackInfoList[i]
+
                 return
+
             }
 
         }
 
     }
 
-    getCallback(sq: string) {
+    getCallback(sq: number) {
 
-        if (this.callbackInfoList[sq] !== undefined)
-            return this.callbackInfoList[sq]
+        if (this.callbackInfoList[String(sq)] !== undefined)
+            return this.callbackInfoList[String(sq)]
 
         return null
 

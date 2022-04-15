@@ -16,7 +16,7 @@ type DeviceMessage = [
     DeviceMessageRequest,
     number,
     string,
-    string,
+    boolean,
     Record<string, unknown>,
     number,
 ] | [

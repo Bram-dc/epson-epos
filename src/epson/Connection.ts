@@ -1,4 +1,4 @@
-import { ConnectionAccessResult, ConnectionProbeResult, ConnectionResult, ConnectionIFType, ConnectionStatus } from '../functions/enums'
+import { ConnectionAccessResult, ConnectionRequestResult, ConnectionResult, ConnectionIFType, ConnectionStatus } from '../functions/enums'
 import ePosDeviceMessage from './ePosDeviceMessage'
 
 export default class Connection {
@@ -6,7 +6,7 @@ export default class Connection {
     address_p = ''
     protocol_p = ''
     port_p: number | null = null
-    callback_p: ((result: ConnectionProbeResult) => void) | null = null
+    callback_p: ((result: ConnectionRequestResult) => void) | null = null
     usableIF_p = 0
     ws_status_p = ConnectionStatus.DISCONNECT
     dev_status_p = ConnectionStatus.DISCONNECT
@@ -17,7 +17,7 @@ export default class Connection {
 
     }
 
-    probe(url: string, postdata: string, callback: (result: ConnectionProbeResult) => void) {
+    probe(url: string, postdata: string, callback: (result: ConnectionRequestResult) => void) {
 
         const controller = new AbortController()
 
@@ -41,18 +41,10 @@ export default class Connection {
 
                 clearTimeout(timeout)
 
-                if (res.status === 200) {
-
-                    callback(ConnectionProbeResult.OK)
-
-                } else {
-
-                    callback(ConnectionProbeResult.ERROR_PARAMETER)
-
-                }
+                callback(res.status === 200 ? ConnectionRequestResult.OK : ConnectionRequestResult.ERROR_PARAMETER)
 
             })
-            .catch(() => callback(timedOut ? ConnectionProbeResult.ERROR_TIMEOUT : ConnectionProbeResult.ERROR_PARAMETER))
+            .catch(() => callback(timedOut ? ConnectionRequestResult.ERROR_TIMEOUT : ConnectionRequestResult.ERROR_PARAMETER))
 
     }
 
@@ -67,7 +59,7 @@ export default class Connection {
 
         this.probe(printUrl, printData, code => {
 
-            const result = code === ConnectionProbeResult.OK ? ConnectionAccessResult.OK : ConnectionAccessResult.ERROR
+            const result = code === ConnectionRequestResult.OK ? ConnectionAccessResult.OK : ConnectionAccessResult.ERROR
 
             this.registIFAccessResult(ConnectionIFType.IF_EPOSPRINT, result)
 
@@ -83,7 +75,7 @@ export default class Connection {
 
         this.probe(displayUrl, displayData, code => {
 
-            const result = code === ConnectionProbeResult.OK ? ConnectionAccessResult.OK : ConnectionAccessResult.ERROR
+            const result = code === ConnectionRequestResult.OK ? ConnectionAccessResult.OK : ConnectionAccessResult.ERROR
 
             this.registIFAccessResult(ConnectionIFType.IF_EPOSDISPLAY, result)
 
@@ -139,7 +131,7 @@ export default class Connection {
 
     }
 
-    registCallback(callback: (result: ConnectionProbeResult) => void) {
+    registCallback(callback: (result: ConnectionRequestResult) => void) {
 
         this.callback_p = callback
 
@@ -148,16 +140,20 @@ export default class Connection {
     changeStatus(target: ConnectionIFType, status: ConnectionStatus) {
 
         switch (target) {
+
             case ConnectionIFType.IF_ALL:
                 this.dev_status_p = status
                 this.ws_status_p = status
                 break
+
             case ConnectionIFType.IF_EPOSDEVICE:
                 this.dev_status_p = status
                 break
+
             default:
                 this.ws_status_p = status
                 break
+
         }
 
     }
@@ -204,30 +200,26 @@ export default class Connection {
 
         if (type === ConnectionIFType.IF_EPOSDEVICE) {
 
-            let result = ConnectionProbeResult.ERROR_PARAMETER
+            let result = ConnectionRequestResult.ERROR_PARAMETER
 
             if (this.usableIF_p & ConnectionIFType.IF_ALL) {
                 if (this.protocol_p == 'http') {
-                    result = ConnectionProbeResult.OK
+                    result = ConnectionRequestResult.OK
                 } else {
-                    result = ConnectionProbeResult.SSL_CONNECT_OK
+                    result = ConnectionRequestResult.SSL_CONNECT_OK
                 }
             }
 
             if (code === ConnectionAccessResult.TIMEOUT)
-                result = ConnectionProbeResult.ERROR_TIMEOUT
+                result = ConnectionRequestResult.ERROR_TIMEOUT
 
-            if (this.callback_p !== null) {
+            try {
 
-                try {
+                this.callback_p?.(result)
 
-                    this.callback_p(result)
+            } catch { }
 
-                } catch { }
-
-                this.callback_p = null
-
-            }
+            this.callback_p = null
 
         }
     }

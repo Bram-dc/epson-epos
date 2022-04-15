@@ -1,313 +1,3 @@
-// FONT_A = 'font_a'
-// FONT_B = 'font_b'
-// FONT_C = 'font_c'
-// FONT_D = 'font_d'
-// FONT_E = 'font_e'
-// FONT_SPECIAL_A = 'special_a'
-// FONT_SPECIAL_B = 'special_b'
-
-export const enum Font {
-    A = 'font_a',
-    B = 'font_b',
-    C = 'font_c',
-    D = 'font_d',
-    E = 'font_e',
-    SPECIAL_A = 'special_a',
-    SPECIAL_B = 'special_b',
-}
-
-// ALIGN_LEFT = 'left'
-// ALIGN_CENTER = 'center'
-// ALIGN_RIGHT = 'right'
-
-export const enum Align {
-    LEFT = 'left',
-    CENTER = 'center',
-    RIGHT = 'right',
-}
-
-// COLOR_NONE = 'none'
-// COLOR_1 = 'color_1'
-// COLOR_2 = 'color_2'
-// COLOR_3 = 'color_3'
-// COLOR_4 = 'color_4'
-
-export const enum Color {
-    NONE = 'none',
-    ONE = 'color_1',
-    TWO = 'color_2',
-    THREE = 'color_3',
-    FOUR = 'color_4',
-}
-
-// FEED_PEELING = 'peeling'
-// FEED_CUTTING = 'cutting'
-// FEED_CURRENT_TOF = 'current_tof'
-// FEED_NEXT_TOF = 'next_tof'
-
-export const enum Feed {
-    PEELING = 'peeling',
-    CUTTING = 'cutting',
-    CURRENT_TOF = 'current_tof',
-    NEXT_TOF = 'next_tof',
-}
-
-// MODE_MONO = 'mono'
-// MODE_GRAY16 = 'gray16'
-
-export const enum Mode {
-    MONO = 'mono',
-    GRAY16 = 'gray16',
-}
-
-// BARCODE_UPC_A = 'upc_a'
-// BARCODE_UPC_E = 'upc_e'
-// BARCODE_EAN13 = 'ean13'
-// BARCODE_JAN13 = 'jan13'
-// BARCODE_EAN8 = 'ean8'
-// BARCODE_JAN8 = 'jan8'
-// BARCODE_CODE39 = 'code39'
-// BARCODE_ITF = 'itf'
-// BARCODE_CODABAR = 'codabar'
-// BARCODE_CODE93 = 'code93'
-// BARCODE_CODE128 = 'code128'
-// BARCODE_GS1_128 = 'gs1_128'
-// BARCODE_GS1_DATABAR_OMNIDIRECTIONAL = 'gs1_databar_omnidirectional'
-// BARCODE_GS1_DATABAR_TRUNCATED = 'gs1_databar_truncated'
-// BARCODE_GS1_DATABAR_LIMITED = 'gs1_databar_limited'
-// BARCODE_GS1_DATABAR_EXPANDED = 'gs1_databar_expanded'
-// BARCODE_CODE128_AUTO = 'code128_auto'
-
-export const enum Barcode {
-    UPC_A = 'upc_a',
-    UPC_E = 'upc_e',
-    EAN13 = 'ean13',
-    JAN13 = 'jan13',
-    EAN8 = 'ean8',
-    JAN8 = 'jan8',
-    CODE39 = 'code39',
-    ITF = 'itf',
-    CODABAR = 'codabar',
-    CODE93 = 'code93',
-    CODE128 = 'code128',
-    GS1_128 = 'gs1_128',
-    GS1_DATABAR_OMNIDIRECTIONAL = 'gs1_databar_omnidirectional',
-    GS1_DATABAR_TRUNCATED = 'gs1_databar_truncated',
-    GS1_DATABAR_LIMITED = 'gs1_databar_limited',
-    GS1_DATABAR_EXPANDED = 'gs1_databar_expanded',
-    CODE128_AUTO = 'code128_auto',
-}
-
-// HRI_NONE = 'none'
-// HRI_ABOVE = 'above'
-// HRI_BELOW = 'below'
-// HRI_BOTH = 'both'
-
-export const enum HRI {
-    NONE = 'none',
-    ABOVE = 'above',
-    BELOW = 'below',
-    BOTH = 'both',
-}
-
-// SYMBOL_PDF417_STANDARD = 'pdf417_standard'
-// SYMBOL_PDF417_TRUNCATED = 'pdf417_truncated'
-// SYMBOL_QRCODE_MODEL_1 = 'qrcode_model_1'
-// SYMBOL_QRCODE_MODEL_2 = 'qrcode_model_2'
-// SYMBOL_QRCODE_MICRO = 'qrcode_micro'
-// SYMBOL_MAXICODE_MODE_2 = 'maxicode_mode_2'
-// SYMBOL_MAXICODE_MODE_3 = 'maxicode_mode_3'
-// SYMBOL_MAXICODE_MODE_4 = 'maxicode_mode_4'
-// SYMBOL_MAXICODE_MODE_5 = 'maxicode_mode_5'
-// SYMBOL_MAXICODE_MODE_6 = 'maxicode_mode_6'
-// SYMBOL_GS1_DATABAR_STACKED = 'gs1_databar_stacked'
-// SYMBOL_GS1_DATABAR_STACKED_OMNIDIRECTIONAL = 'gs1_databar_stacked_omnidirectional'
-// SYMBOL_GS1_DATABAR_EXPANDED_STACKED = 'gs1_databar_expanded_stacked'
-// SYMBOL_AZTECCODE_FULLRANGE = 'azteccode_fullrange'
-// SYMBOL_AZTECCODE_COMPACT = 'azteccode_compact'
-// SYMBOL_DATAMATRIX_SQUARE = 'datamatrix_square'
-// SYMBOL_DATAMATRIX_RECTANGLE_8 = 'datamatrix_rectangle_8'
-// SYMBOL_DATAMATRIX_RECTANGLE_12 = 'datamatrix_rectangle_12'
-// SYMBOL_DATAMATRIX_RECTANGLE_16 = 'datamatrix_rectangle_16'
-
-export const enum Symbol_ {
-    PDF417_STANDARD = 'pdf417_standard',
-    PDF417_TRUNCATED = 'pdf417_truncated',
-    QRCODE_MODEL_1 = 'qrcode_model_1',
-    QRCODE_MODEL_2 = 'qrcode_model_2',
-    QRCODE_MICRO = 'qrcode_micro',
-    MAXICODE_MODE_2 = 'maxicode_mode_2',
-    MAXICODE_MODE_3 = 'maxicode_mode_3',
-    MAXICODE_MODE_4 = 'maxicode_mode_4',
-    MAXICODE_MODE_5 = 'maxicode_mode_5',
-    MAXICODE_MODE_6 = 'maxicode_mode_6',
-    GS1_DATABAR_STACKED = 'gs1_databar_stacked',
-    GS1_DATABAR_STACKED_OMNIDIRECTIONAL = 'gs1_databar_stacked_omnidirectional',
-    GS1_DATABAR_EXPANDED_STACKED = 'gs1_databar_expanded_stacked',
-    AZTECCODE_FULLRANGE = 'azteccode_fullrange',
-    AZTECCODE_COMPACT = 'azteccode_compact',
-    DATAMATRIX_SQUARE = 'datamatrix_square',
-    DATAMATRIX_RECTANGLE_8 = 'datamatrix_rectangle_8',
-    DATAMATRIX_RECTANGLE_12 = 'datamatrix_rectangle_12',
-    DATAMATRIX_RECTANGLE_16 = 'datamatrix_rectangle_16',
-}
-
-// LEVEL_0 = 'level_0'
-// LEVEL_1 = 'level_1'
-// LEVEL_2 = 'level_2'
-// LEVEL_3 = 'level_3'
-// LEVEL_4 = 'level_4'
-// LEVEL_5 = 'level_5'
-// LEVEL_6 = 'level_6'
-// LEVEL_7 = 'level_7'
-// LEVEL_8 = 'level_8'
-// LEVEL_L = 'level_l'
-// LEVEL_M = 'level_m'
-// LEVEL_Q = 'level_q'
-// LEVEL_H = 'level_h'
-// LEVEL_DEFAULT = 'default'
-
-export const enum Level {
-    LEVEL_0 = 'level_0',
-    LEVEL_1 = 'level_1',
-    LEVEL_2 = 'level_2',
-    LEVEL_3 = 'level_3',
-    LEVEL_4 = 'level_4',
-    LEVEL_5 = 'level_5',
-    LEVEL_6 = 'level_6',
-    LEVEL_7 = 'level_7',
-    LEVEL_8 = 'level_8',
-    LEVEL_L = 'level_l',
-    LEVEL_M = 'level_m',
-    LEVEL_Q = 'level_q',
-    LEVEL_H = 'level_h',
-    LEVEL_DEFAULT = 'default',
-}
-
-// LINE_THIN = 'thin'
-// LINE_MEDIUM = 'medium'
-// LINE_THICK = 'thick'
-// LINE_THIN_DOUBLE = 'thin_double'
-// LINE_MEDIUM_DOUBLE = 'medium_double'
-// LINE_THICK_DOUBLE = 'thick_double'
-
-export const enum Line {
-    THIN = 'thin',
-    MEDIUM = 'medium',
-    THICK = 'thick',
-    THIN_DOUBLE = 'thin_double',
-    MEDIUM_DOUBLE = 'medium_double',
-    THICK_DOUBLE = 'thick_double',
-}
-
-// DIRECTION_LEFT_TO_RIGHT = 'left_to_right'
-// DIRECTION_BOTTOM_TO_TOP = 'bottom_to_top'
-// DIRECTION_RIGHT_TO_LEFT = 'right_to_left'
-// DIRECTION_TOP_TO_BOTTOM = 'top_to_bottom'
-
-export const enum Direction {
-    LEFT_TO_RIGHT = 'left_to_right',
-    BOTTOM_TO_TOP = 'bottom_to_top',
-    RIGHT_TO_LEFT = 'right_to_left',
-    TOP_TO_BOTTOM = 'top_to_bottom',
-}
-
-// CUT_NO_FEED = 'no_feed'
-// CUT_FEED = 'feed'
-// CUT_RESERVE = 'reserve'
-
-export const enum Cut {
-    NO_FEED = 'no_feed',
-    FEED = 'feed',
-    RESERVE = 'reserve',
-}
-
-// DRAWER_1 = 'drawer_1'
-// DRAWER_2 = 'drawer_2'
-
-export const enum Drawer {
-    DRAWER_1 = 'drawer_1',
-    DRAWER_2 = 'drawer_2',
-}
-
-// PULSE_100 = 'pulse_100'
-// PULSE_200 = 'pulse_200'
-// PULSE_300 = 'pulse_300'
-// PULSE_400 = 'pulse_400'
-// PULSE_500 = 'pulse_500'
-
-export const enum Pulse {
-    PULSE_100 = 'pulse_100',
-    PULSE_200 = 'pulse_200',
-    PULSE_300 = 'pulse_300',
-    PULSE_400 = 'pulse_400',
-    PULSE_500 = 'pulse_500',
-}
-
-// PATTERN_NONE = 'none'
-// PATTERN_0 = 'pattern_0'
-// PATTERN_1 = 'pattern_1'
-// PATTERN_2 = 'pattern_2'
-// PATTERN_3 = 'pattern_3'
-// PATTERN_4 = 'pattern_4'
-// PATTERN_5 = 'pattern_5'
-// PATTERN_6 = 'pattern_6'
-// PATTERN_7 = 'pattern_7'
-// PATTERN_8 = 'pattern_8'
-// PATTERN_9 = 'pattern_9'
-// PATTERN_10 = 'pattern_10'
-// PATTERN_A = 'pattern_a'
-// PATTERN_B = 'pattern_b'
-// PATTERN_C = 'pattern_c'
-// PATTERN_D = 'pattern_d'
-// PATTERN_E = 'pattern_e'
-// PATTERN_ERROR = 'error'
-// PATTERN_PAPER_END = 'paper_end'
-
-export const enum Pattern {
-    NONE = 'none',
-    PATTERN_0 = 'pattern_0',
-    PATTERN_1 = 'pattern_1',
-    PATTERN_2 = 'pattern_2',
-    PATTERN_3 = 'pattern_3',
-    PATTERN_4 = 'pattern_4',
-    PATTERN_5 = 'pattern_5',
-    PATTERN_6 = 'pattern_6',
-    PATTERN_7 = 'pattern_7',
-    PATTERN_8 = 'pattern_8',
-    PATTERN_9 = 'pattern_9',
-    PATTERN_10 = 'pattern_10',
-    PATTERN_A = 'pattern_a',
-    PATTERN_B = 'pattern_b',
-    PATTERN_C = 'pattern_c',
-    PATTERN_D = 'pattern_d',
-    PATTERN_E = 'pattern_e',
-    ERROR = 'error',
-    PAPER_END = 'paper_end',
-}
-
-// LAYOUT_RECEIPT = 'receipt'
-// LAYOUT_RECEIPT_BM = 'receipt_bm'
-// LAYOUT_LABEL = 'label'
-// LAYOUT_LABEL_BM = 'label_bm'
-
-export const enum Paper {
-    RECEIPT = 'receipt',
-    RECEIPT_BM = 'receipt_bm',
-    LABEL = 'label',
-    LABEL_BM = 'label_bm',
-}
-
-// HALFTONE_DITHER = 0
-// HALFTONE_ERROR_DIFFUSION = 1
-// HALFTONE_THRESHOLD = 2
-
-export const enum Halftone {
-    DITHER = 0,
-    ERROR_DIFFUSION = 1,
-    THRESHOLD = 2,
-}
-
 // ASB_NO_RESPONSE = 1
 // ASB_PRINT_SUCCESS = 2
 // ASB_DRAWER_KICK = 4
@@ -478,7 +168,7 @@ export const enum ConnectionAccessResult {
 // ERROR_PARAMETER = "ERROR_PARAMETER"
 // ERROR_SYSTEM = "SYSTEM_ERROR"
 
-export const enum ConnectionProbeResult {
+export const enum ConnectionRequestResult {
     OK = 'OK',
     SSL_CONNECT_OK = 'SSL_CONNECT_OK',
     ERROR_TIMEOUT = 'ERROR_TIMEOUT',
@@ -560,40 +250,6 @@ export const enum CommBoxManagerResult {
     SYSTEM_ERROR = 'SYSTEM_ERROR',
 }
 
-// CONFIG_LEFT_CASH = 'CONFIG_LEFT_CASH'
-// CONFIG_COUNT_MODE = 'CONFIG_COUNT_MODE'
-
-export const enum CashChangerConfig {
-    LEFT_CASH = 'CONFIG_LEFT_CASH',
-    COUNT_MODE = 'CONFIG_COUNT_MODE',
-}
-
-// MODE_MANUAL_INPUT = 'MODE_MANUAL_INPUT'
-// MODE_AUTOCOUNT = 'MODE_AUTO_COUNT'
-
-export const enum CashChangerMode {
-    MANUAL_INPUT = 'MODE_MANUAL_INPUT',
-    AUTOCOUNT = 'MODE_AUTO_COUNT',
-}
-
-// DEPOSIT_CHANGE = 'DEPOSIT_CHANGE'
-// DEPOSIT_NOCHANGE = 'DEPOSIT_NOCHANGE'
-// DEPOSIT_REPAY = 'DEPOSIT_REPAY'
-
-export const enum CashChangerDeposit {
-    CHANGE = 'DEPOSIT_CHANGE',
-    NOCHANGE = 'DEPOSIT_NOCHANGE',
-    REPAY = 'DEPOSIT_REPAY',
-}
-
-// COLLECT_ALL_CASH = 'ALL_CASH'
-// COLLECT_PART_OF_CASH = 'PART_OF_CASH'
-
-export const enum CashChangerCollect {
-    ALL_CASH = 'ALL_CASH',
-    PART_OF_CASH = 'PART_OF_CASH',
-}
-
 // SUE_POWER_ONLINE = 2001
 // SUE_POWER_OFF = 2002
 // SUE_POWER_OFFLINE = 2003
@@ -624,4 +280,48 @@ export const enum SueStatus {
     FULLOK = 23,
     JAM = 31,
     JAMOK = 32,
+}
+
+// DEVICE_GROUP_ALL = 'group_all'
+// DEVICE_GROUP_PRINTER = 'group_printer'
+// DEVICE_GROUP_DISPLAY = 'group_display'
+// DEVICE_GROUP_HID = 'group_hid'
+// DEVICE_GROUP_SERIAL = 'group_serial'
+// DEVICE_GROUP_OTHER = 'group_other'
+
+export const enum DeviceGroup {
+    ALL = 'group_all',
+    PRINTER = 'group_printer',
+    DISPLAY = 'group_display',
+    HID = 'group_hid',
+    SERIAL = 'group_serial',
+    OTHER = 'group_other',
+}
+
+// DEVICE_TYPE_PRINTER = 'type_printer'
+// DEVICE_TYPE_HYBRID_PRINTER = 'type_hybrid_printer'
+// DEVICE_TYPE_DISPLAY = 'type_display'
+// DEVICE_TYPE_KEYBOARD = 'type_keyboard'
+// DEVICE_TYPE_SCANNER = 'type_scanner'
+// DEVICE_TYPE_MSR = 'type_msr'
+// DEVICE_TYPE_CASH_CHANGER = 'type_cash_changer'
+// DEVICE_TYPE_SIMPLE_SERIAL = 'type_simple_serial'
+// DEVICE_TYPE_CASH_DRAWER = 'type_cash_drawer'
+// DEVICE_TYPE_PIN_PAD = 'type_pin_pad'
+// DEVICE_TYPE_CAT = 'type_cat'
+// DEVICE_TYPE_SMARTCARD_RW = 'type_smartcard_rw'
+
+export const enum DeviceType2 {
+    PRINTER = 'type_printer',
+    HYBRID_PRINTER = 'type_hybrid_printer',
+    DISPLAY = 'type_display',
+    KEYBOARD = 'type_keyboard',
+    SCANNER = 'type_scanner',
+    MSR = 'type_msr',
+    CASH_CHANGER = 'type_cash_changer',
+    SIMPLE_SERIAL = 'type_simple_serial',
+    CASH_DRAWER = 'type_cash_drawer',
+    PIN_PAD = 'type_pin_pad',
+    CAT = 'type_cat',
+    SMARTCARD_RW = 'type_smartcard_rw',
 }

@@ -1,10 +1,41 @@
 import ePOSPrint from './ePOSPrint'
-import { Align, Color, Cut, Feed, Paper, Mode } from '../functions/enums'
 import Connection from './Connection'
+
+const enum Align { // Also in ePOSBuilder
+    LEFT = 'left',
+    CENTER = 'center',
+    RIGHT = 'right',
+}
+
+const enum Color { // Also in ePOSBuilder
+    NONE = 'none',
+    ONE = 'color_1',
+    TWO = 'color_2',
+    THREE = 'color_3',
+    FOUR = 'color_4',
+}
+
+const enum Feed { // Also in ePOSBuilder
+    PEELING = 'peeling',
+    CUTTING = 'cutting',
+    CURRENT_TOF = 'current_tof',
+    NEXT_TOF = 'next_tof',
+}
+
+const enum Mode { // Also in ePOSBuilder
+    MONO = 'mono',
+    GRAY16 = 'gray16',
+}
+
+const enum Halftone { // Also in ePOSBuilder
+    DITHER = 0,
+    ERROR_DIFFUSION = 1,
+    THRESHOLD = 2,
+}
 
 export default class CanvasPrint extends ePOSPrint {
     mode = Mode.MONO
-    halftone = 0
+    halftone = Halftone.DITHER
     brightness = 1
     align = Align.LEFT
     color = Color.ONE

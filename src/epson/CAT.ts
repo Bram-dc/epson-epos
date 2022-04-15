@@ -23,7 +23,7 @@ CAT.prototype = {
             sequence: data.sequence,
             additional_security_information: data.additionalSecurityInformation,
         }
-        _data.type = "authorizesales"
+        _data.type = 'authorizesales'
         _data.training = this.trainingMode
         _data.timeout = this.timeout
         return this.send(_data)
@@ -35,9 +35,9 @@ CAT.prototype = {
             amount: data.amount,
             tax: data.tax,
             sequence: data.sequence,
-            additional_security_information: data.additionalSecurityInformation
+            additional_security_information: data.additionalSecurityInformation,
         }
-        _data.type = "authorizevoid"
+        _data.type = 'authorizevoid'
         _data.training = this.trainingMode
         _data.timeout = this.timeout
         return this.send(_data)
@@ -49,9 +49,9 @@ CAT.prototype = {
             amount: data.amount,
             tax: data.tax,
             sequence: data.sequence,
-            additional_security_information: data.additionalSecurityInformation
+            additional_security_information: data.additionalSecurityInformation,
         }
-        _data.type = "authorizerefund"
+        _data.type = 'authorizerefund'
         _data.training = this.trainingMode
         _data.timeout = this.timeout
         return this.send(_data)
@@ -63,9 +63,9 @@ CAT.prototype = {
             amount: data.amount,
             tax: data.tax,
             sequence: data.sequence,
-            additional_security_information: data.additionalSecurityInformation
+            additional_security_information: data.additionalSecurityInformation,
         }
-        _data.type = "authorizecompletion"
+        _data.type = 'authorizecompletion'
         _data.training = this.trainingMode
         _data.timeout = this.timeout
         return this.send(_data)
@@ -76,9 +76,9 @@ CAT.prototype = {
             total_amount: data.totalAmount,
             sequence: data.sequence,
             dailylog_type: data.dailylogType,
-            additional_security_information: data.additionalSecurityInformation
+            additional_security_information: data.additionalSecurityInformation,
         }
-        _data.type = "accessdailylog"
+        _data.type = 'accessdailylog'
         _data.training = this.trainingMode
         _data.timeout = this.timeout
         return this.send(_data)
@@ -89,23 +89,23 @@ CAT.prototype = {
             command: data.command,
             data: data.data,
             string: data.string,
-            additional_security_information: data.additionalSecurityInformation
+            additional_security_information: data.additionalSecurityInformation,
         }
-        _data.type = "sendcommand"
+        _data.type = 'sendcommand'
         _data.training = this.trainingMode
         return this.send(_data)
     },
     checkConnection: function (data) {
         var _data = {
-            type: "checkconnection",
-            additional_security_information: data.additionalSecurityInformation
+            type: 'checkconnection',
+            additional_security_information: data.additionalSecurityInformation,
         }
         _data.timeout = this.timeout
         return this.send(_data)
     },
     clearOutput: function () {
         var _data = {
-            type: "clearoutput"
+            type: 'clearoutput',
         }
         return this.send(_data)
     },
@@ -224,7 +224,7 @@ CAT.prototype = {
             voidSlipNumber: data.void_slip_number,
             balance: data.balance,
             transactionType: data.transaction_type,
-            additionalSecurityInformation: data.additional_security_information
+            additionalSecurityInformation: data.additional_security_information,
         })
     },
     getDailyLogObject: function (data) {
@@ -271,5 +271,5 @@ CAT.prototype = {
         var eventReq = data
         eventReq.type = eventName
         return this.send(eventReq)
-    }
+    },
 }

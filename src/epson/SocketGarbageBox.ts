@@ -32,8 +32,7 @@ export default class SocketGarbageBox {
 
             socket.disconnect()
 
-            // Memory leak?
-            // delete socket
+            delete socket
 
         }
 

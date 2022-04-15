@@ -1,3 +1,4 @@
+import ePosCrypto from './epson/ePosCrypto'
 import ePosDeviceMessage from './epson/ePosDeviceMessage'
 import { DeviceMessageRequest } from './functions/enums'
 
@@ -52,7 +53,7 @@ export default class MessageFactory {
             case DeviceMessageRequest.SERVICEDATA:
                 eposmsg.sequence = message[1] as number
                 eposmsg.serviceId = message[2] as string
-                eposmsg.isCrypto = message[3] as string
+                eposmsg.isCrypto = message[3] as boolean
                 eposmsg.data = message[4] as Record<string, unknown>
                 eposmsg.data_id = message[5] as number
                 break
@@ -182,30 +183,23 @@ export default class MessageFactory {
         eposmsg.request = DeviceMessageRequest.DEVICEDATA
         eposmsg.sequence = getNextSequence()
         eposmsg.deviceId = deviceId
-        if (crypto) {
-            eposmsg.data = cipher.bfEncrypt(JSON.stringify(data))
-        } else {
-            eposmsg.data = data
-        }
+
+        eposmsg.data = crypto ? cipher.bfEncrypt(JSON.stringify(data)) : data
 
         return eposmsg
 
     }
 
-    static getServiceMessage(serviceId: string, isCrypt: string, data: Record<string, unknown>) {
+    static getServiceMessage(serviceId: string, isCrypto: boolean, data: Record<string, unknown>) {
 
         const eposmsg = new ePosDeviceMessage()
 
         eposmsg.request = DeviceMessageRequest.SERVICEDATA
         eposmsg.sequence = getNextSequence()
         eposmsg.serviceId = serviceId
-        eposmsg.isCrypto = isCrypt
+        eposmsg.isCrypto = isCrypto
 
-        if (isCrypt) {
-            eposmsg.data = cipher.bfEncrypt(JSON.stringify(data))
-        } else {
-            eposmsg.data = data
-        }
+        eposmsg.data = isCrypto ? cipher.bfEncrypt(JSON.stringify(data)) : data
 
         return eposmsg
 

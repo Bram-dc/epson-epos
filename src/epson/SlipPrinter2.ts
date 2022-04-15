@@ -1,23 +1,26 @@
-function EndorsePrinter2(parent) {
+export default class SlipPrinter2 
+
+
+
+
+function SlipPrinter2(parent) {
     this.parent = parent
-    this.mode40cpl = false
 }
-EndorsePrinter2.prototype = new EndorsePrinter()
-EndorsePrinter2.prototype.timeout = 60000
-EndorsePrinter2.prototype.waitTime = 500
-EndorsePrinter2.prototype.send = function () {
+SlipPrinter2.prototype = new SlipPrinter()
+SlipPrinter2.prototype.timeout = 60000
+SlipPrinter2.prototype.waitTime = 500
+SlipPrinter2.prototype.send = function () {
     var xml = null
     if (arguments.length < 1) {
         xml = this.toString()
     } else {
         xml = arguments[1]
     }
-    if ((typeof (this.timeout) != "number") || (this.timeout < 60000) || (this.timeout > 900000)) {
-        this.timeout = 60000
+    if ((typeof (this.timeout) != "number") || (this.timeout < 5000) || (this.timeout > 1000000)) {
+        this.timeout = 10000
     }
     var data = {
-        type: "endorseprint2",
-        is40cplmode: this.mode40cpl,
+        type: "slipprint2",
         timeout: this.timeout,
         printdata: xml
     }
@@ -25,39 +28,36 @@ EndorsePrinter2.prototype.send = function () {
     this.setXmlString("")
     return sequence
 }
-EndorsePrinter2.prototype.setXmlString = function (xml) {
+SlipPrinter2.prototype.setXmlString = function (xml) {
     this.message = xml
 }
-EndorsePrinter2.prototype.getXmlString = function () {
+SlipPrinter2.prototype.getXmlString = function () {
     return this.message
 }
-EndorsePrinter2.prototype.waitInsertion = function (timeout) {
+SlipPrinter2.prototype.waitInsertion = function (timeout) {
     if ((typeof (timeout) != "number") || (timeout < 5000) || (timeout > 900000)) {
         this.timeout = 60000
     } else {
         this.timeout = timeout
     }
-    var endorseWaitTime = this.waitTime
+    var slipWaitTime = this.waitTime
     if ((typeof (this.waitTime) != "number") || (this.waitTime < 0) || (this.waitTime > 6400)) {
-        endorseWaitTime = 500
+        slipWaitTime = 500
     }
     var data = {
-        type: "endorsewaitinsertion",
+        type: "slipwaitinsertion",
         timeout: this.timeout,
-        waittime: endorseWaitTime
+        waittime: slipWaitTime
     }
     return this.parent.send(data)
 }
-EndorsePrinter2.prototype.cancel = function () {
+SlipPrinter2.prototype.cancel = function () {
     var data = {
-        type: "endorsecancel"
+        type: "slipcancel"
     }
     return this.parent.send(data)
 }
-EndorsePrinter2.prototype.enable40cplmode = function (flag) {
-    this.mode40cpl = flag
-}
-EndorsePrinter2.prototype.fireOnReceive = function (res, sq) {
+SlipPrinter2.prototype.fireOnReceive = function (res, sq) {
     if (this.onreceive == null) {
         return
     }
@@ -66,13 +66,13 @@ EndorsePrinter2.prototype.fireOnReceive = function (res, sq) {
     }
     var eventtype = ""
     switch (res.eventtype) {
-        case "endorseprint2":
+        case "slipprint2":
             eventtype = "send"
             break
-        case "endorsecancel":
+        case "slipcancel":
             eventtype = "cancel"
             break
-        case "endorsewaitinsertion":
+        case "slipwaitinsertion":
             eventtype = "waitinsertion"
             break
         default:
