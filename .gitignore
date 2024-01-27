@@ -1,4 +1,9 @@
-/node_modules
-/build
+node_modules/
+build/
+
+.idea/
+.vscode/
+.git/
+
 .env
 .DS_Store
